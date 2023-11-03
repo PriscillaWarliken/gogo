@@ -1,0 +1,20 @@
+<resources>
+
+    <string name="imagepicker_action_ok">OK</string>
+    <string name="imagepicker_action_done">DONE</string>
+    <string name="imagepicker_action_cancel">CANCEL</string>
+
+    <string name="imagepicker_title_folder">Albums</string>
+    <string name="imagepicker_title_image">Photos</string>
+
+    <string name="imagepicker_text_gif">GIF</string>
+
+    <string name="imagepicker_error_no_camera">No camera found.</string>
+    <string name="imagepicker_error_camera">Could not open camera.</string>
+
+    <string name="imagepicker_msg_no_image">No image available.</string>
+    <string name="imagepicker_msg_no_photo_access_permission">Please allow permission to access photos and media.</string>
+    <string name="imagepicker_msg_no_camera_permission">Please allow permission to access camera.</string>
+    <string name="imagepicker_msg_selection_limit">You have reached the limit number of images.</string>
+
+</resources>

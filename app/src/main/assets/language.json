@@ -1,0 +1,806 @@
+[
+  {
+    "language": "af",
+    "languageEn": "Afrikaans",
+    "languageZh": "南非荷兰语",
+    "orders": 0
+  },
+  {
+    "language": "sq",
+    "languageEn": "Albanian",
+    "languageZh": "阿尔巴尼亚语",
+    "orders": 0
+  },
+  {
+    "language": "am",
+    "languageEn": "Amharic",
+    "languageZh": "阿姆哈拉语",
+    "orders": 0
+  },
+  {
+    "language": "ar",
+    "languageEn": "Arabic",
+    "languageZh": "阿拉伯语",
+    "orders": 0
+  },
+  {
+    "language": "hy",
+    "languageEn": "Armenian",
+    "languageZh": "亚美尼亚文",
+    "orders": 0
+  },
+  {
+    "language": "as",
+    "languageEn": "Assamese",
+    "languageZh": "阿萨姆语",
+    "orders": 0
+  },
+  {
+    "language": "ay",
+    "languageEn": "Aymara",
+    "languageZh": "艾马拉语",
+    "orders": 0
+  },
+  {
+    "language": "az",
+    "languageEn": "Azerbaijani",
+    "languageZh": "阿塞拜疆语",
+    "orders": 0
+  },
+  {
+    "language": "bm",
+    "languageEn": "Bambara",
+    "languageZh": "班巴拉语",
+    "orders": 0
+  },
+  {
+    "language": "eu",
+    "languageEn": "Basque",
+    "languageZh": "巴斯克语",
+    "orders": 0
+  },
+  {
+    "language": "be",
+    "languageEn": "Belarusian",
+    "languageZh": "白俄罗斯语",
+    "orders": 0
+  },
+  {
+    "language": "bn",
+    "languageEn": "Bengali",
+    "languageZh": "孟加拉文",
+    "orders": 0
+  },
+  {
+    "language": "bho",
+    "languageEn": "Bhojpuri",
+    "languageZh": "博杰普尔语",
+    "orders": 0
+  },
+  {
+    "language": "bs",
+    "languageEn": "Bosnian",
+    "languageZh": "波斯尼亚语",
+    "orders": 0
+  },
+  {
+    "language": "bg",
+    "languageEn": "Bulgarian",
+    "languageZh": "保加利亚语",
+    "orders": 0
+  },
+  {
+    "language": "ca",
+    "languageEn": "Catalan",
+    "languageZh": "加泰罗尼亚语",
+    "orders": 0
+  },
+  {
+    "language": "ceb",
+    "languageEn": "Cebuano",
+    "languageZh": "宿务语",
+    "orders": 0
+  },
+  {
+    "language": "zh-CN",
+    "languageEn": "Chinese (Simplified)",
+    "languageZh": "中文（简体）",
+    "orders": 0
+  },
+  {
+    "language": "zh-TW",
+    "languageEn": "Chinese (Traditional)",
+    "languageZh": "中文（繁体）",
+    "orders": 0
+  },
+  {
+    "language": "co",
+    "languageEn": "Corsican",
+    "languageZh": "科西嘉语",
+    "orders": 0
+  },
+  {
+    "language": "hr",
+    "languageEn": "Croatian",
+    "languageZh": "克罗地亚语",
+    "orders": 0
+  },
+  {
+    "language": "cs",
+    "languageEn": "Czech",
+    "languageZh": "捷克语",
+    "orders": 0
+  },
+  {
+    "language": "da",
+    "languageEn": "Danish",
+    "languageZh": "丹麦语",
+    "orders": 0
+  },
+  {
+    "language": "dv",
+    "languageEn": "Dhivehi",
+    "languageZh": "迪维希语",
+    "orders": 0
+  },
+  {
+    "language": "doi",
+    "languageEn": "Dogri",
+    "languageZh": "多格来语",
+    "orders": 0
+  },
+  {
+    "language": "nl",
+    "languageEn": "Dutch",
+    "languageZh": "荷兰语",
+    "orders": 0
+  },
+  {
+    "language": "en",
+    "languageEn": "English",
+    "languageZh": "英语",
+    "orders": 0
+  },
+  {
+    "language": "eo",
+    "languageEn": "Esperanto",
+    "languageZh": "世界语",
+    "orders": 0
+  },
+  {
+    "language": "et",
+    "languageEn": "Estonian",
+    "languageZh": "爱沙尼亚语",
+    "orders": 0
+  },
+  {
+    "language": "ee",
+    "languageEn": "Ewe",
+    "languageZh": "埃维语",
+    "orders": 0
+  },
+  {
+    "language": "fil",
+    "languageEn": "Filipino",
+    "languageZh": "菲律宾语（塔加拉语）",
+    "orders": 0
+  },
+  {
+    "language": "fi",
+    "languageEn": "Finnish",
+    "languageZh": "芬兰语",
+    "orders": 0
+  },
+  {
+    "language": "fr",
+    "languageEn": "French",
+    "languageZh": "法语",
+    "orders": 0
+  },
+  {
+    "language": "fy",
+    "languageEn": "Frisian",
+    "languageZh": "弗里斯兰语",
+    "orders": 0
+  },
+  {
+    "language": "gl",
+    "languageEn": "Galician",
+    "languageZh": "加利西亚语",
+    "orders": 0
+  },
+  {
+    "language": "ka",
+    "languageEn": "Georgian",
+    "languageZh": "格鲁吉亚语",
+    "orders": 0
+  },
+  {
+    "language": "de",
+    "languageEn": "German",
+    "languageZh": "德语",
+    "orders": 0
+  },
+  {
+    "language": "el",
+    "languageEn": "Greek",
+    "languageZh": "希腊文",
+    "orders": 0
+  },
+  {
+    "language": "gn",
+    "languageEn": "Guarani",
+    "languageZh": "瓜拉尼人",
+    "orders": 0
+  },
+  {
+    "language": "gu",
+    "languageEn": "Gujarati",
+    "languageZh": "古吉拉特文",
+    "orders": 0
+  },
+  {
+    "language": "ht",
+    "languageEn": "Haitian Creole",
+    "languageZh": "海地克里奥尔语",
+    "orders": 0
+  },
+  {
+    "language": "ha",
+    "languageEn": "Hausa",
+    "languageZh": "豪萨语",
+    "orders": 0
+  },
+  {
+    "language": "haw",
+    "languageEn": "Hawaiian",
+    "languageZh": "夏威夷语",
+    "orders": 0
+  },
+  {
+    "language": "he",
+    "languageEn": "Hebrew",
+    "languageZh": "希伯来语",
+    "orders": 0
+  },
+  {
+    "language": "hi",
+    "languageEn": "Hindi",
+    "languageZh": "印地语",
+    "orders": 0
+  },
+  {
+    "language": "hmn",
+    "languageEn": "Hmong",
+    "languageZh": "苗语",
+    "orders": 0
+  },
+  {
+    "language": "hu",
+    "languageEn": "Hungarian",
+    "languageZh": "匈牙利语",
+    "orders": 0
+  },
+  {
+    "language": "is",
+    "languageEn": "Icelandic",
+    "languageZh": "冰岛语",
+    "orders": 0
+  },
+  {
+    "language": "ig",
+    "languageEn": "Igbo",
+    "languageZh": "伊博语",
+    "orders": 0
+  },
+  {
+    "language": "ilo",
+    "languageEn": "Ilocano",
+    "languageZh": "伊洛卡诺语",
+    "orders": 0
+  },
+  {
+    "language": "id",
+    "languageEn": "Indonesian",
+    "languageZh": "印度尼西亚语",
+    "orders": 0
+  },
+  {
+    "language": "ga",
+    "languageEn": "Irish",
+    "languageZh": "爱尔兰语",
+    "orders": 0
+  },
+  {
+    "language": "it",
+    "languageEn": "Italian",
+    "languageZh": "意大利语",
+    "orders": 0
+  },
+  {
+    "language": "ja",
+    "languageEn": "Japanese",
+    "languageZh": "日语",
+    "orders": 0
+  },
+  {
+    "language": "jv",
+    "languageEn": "Javanese",
+    "languageZh": "爪哇语",
+    "orders": 0
+  },
+  {
+    "language": "kn",
+    "languageEn": "Kannada",
+    "languageZh": "卡纳达文",
+    "orders": 0
+  },
+  {
+    "language": "kk",
+    "languageEn": "Kazakh",
+    "languageZh": "哈萨克语",
+    "orders": 0
+  },
+  {
+    "language": "km",
+    "languageEn": "Khmer",
+    "languageZh": "高棉语",
+    "orders": 0
+  },
+  {
+    "language": "rw",
+    "languageEn": "Kinyarwanda",
+    "languageZh": "卢旺达语",
+    "orders": 0
+  },
+  {
+    "language": "gom",
+    "languageEn": "Konkani",
+    "languageZh": "贡根语",
+    "orders": 0
+  },
+  {
+    "language": "ko",
+    "languageEn": "Korean",
+    "languageZh": "韩语",
+    "orders": 0
+  },
+  {
+    "language": "kri",
+    "languageEn": "Krio",
+    "languageZh": "克里奥尔语",
+    "orders": 0
+  },
+  {
+    "language": "ku",
+    "languageEn": "Kurdish",
+    "languageZh": "库尔德语",
+    "orders": 0
+  },
+  {
+    "language": "ckb",
+    "languageEn": "Kurdish",
+    "languageZh": "库尔德语（索拉尼）",
+    "orders": 0
+  },
+  {
+    "language": "ky",
+    "languageEn": "Kyrgyz",
+    "languageZh": "吉尔吉斯语",
+    "orders": 0
+  },
+  {
+    "language": "lo",
+    "languageEn": "Lao",
+    "languageZh": "老挝语",
+    "orders": 0
+  },
+  {
+    "language": "la",
+    "languageEn": "Latin",
+    "languageZh": "拉丁文",
+    "orders": 0
+  },
+  {
+    "language": "lv",
+    "languageEn": "Latvian",
+    "languageZh": "拉脱维亚语",
+    "orders": 0
+  },
+  {
+    "language": "ln",
+    "languageEn": "Lingala",
+    "languageZh": "林格拉语",
+    "orders": 0
+  },
+  {
+    "language": "lt",
+    "languageEn": "Lithuanian",
+    "languageZh": "立陶宛语",
+    "orders": 0
+  },
+  {
+    "language": "lg",
+    "languageEn": "Luganda",
+    "languageZh": "卢干达语",
+    "orders": 0
+  },
+  {
+    "language": "lb",
+    "languageEn": "Luxembourgish",
+    "languageZh": "卢森堡语",
+    "orders": 0
+  },
+  {
+    "language": "mk",
+    "languageEn": "Macedonian",
+    "languageZh": "马其顿语",
+    "orders": 0
+  },
+  {
+    "language": "mai",
+    "languageEn": "Maithili",
+    "languageZh": "迈蒂利语",
+    "orders": 0
+  },
+  {
+    "language": "mg",
+    "languageEn": "Malagasy",
+    "languageZh": "马尔加什语",
+    "orders": 0
+  },
+  {
+    "language": "ms",
+    "languageEn": "Malay",
+    "languageZh": "马来语",
+    "orders": 0
+  },
+  {
+    "language": "ml",
+    "languageEn": "Malayalam",
+    "languageZh": "马拉雅拉姆文",
+    "orders": 0
+  },
+  {
+    "language": "mt",
+    "languageEn": "Maltese",
+    "languageZh": "马耳他语",
+    "orders": 0
+  },
+  {
+    "language": "mi",
+    "languageEn": "Maori",
+    "languageZh": "毛利语",
+    "orders": 0
+  },
+  {
+    "language": "mr",
+    "languageEn": "Marathi",
+    "languageZh": "马拉地语",
+    "orders": 0
+  },
+  {
+    "language": "mni-Mtei",
+    "languageEn": "Meiteilon",
+    "languageZh": "梅泰语（曼尼普尔语）",
+    "orders": 0
+  },
+  {
+    "language": "lus",
+    "languageEn": "Mizo",
+    "languageZh": "米佐语",
+    "orders": 0
+  },
+  {
+    "language": "mn",
+    "languageEn": "Mongolian",
+    "languageZh": "蒙古文",
+    "orders": 0
+  },
+  {
+    "language": "my",
+    "languageEn": "Myanmar",
+    "languageZh": "缅甸语",
+    "orders": 0
+  },
+  {
+    "language": "ne",
+    "languageEn": "Nepali",
+    "languageZh": "尼泊尔语",
+    "orders": 0
+  },
+  {
+    "language": "no",
+    "languageEn": "Norwegian",
+    "languageZh": "挪威语",
+    "orders": 0
+  },
+  {
+    "language": "ny",
+    "languageEn": "Nyanja",
+    "languageZh": "尼杨扎语（齐切瓦语）",
+    "orders": 0
+  },
+  {
+    "language": "or",
+    "languageEn": "Odia",
+    "languageZh": "奥里亚语（奥里亚）",
+    "orders": 0
+  },
+  {
+    "language": "om",
+    "languageEn": "Oromo",
+    "languageZh": "奥罗莫语",
+    "orders": 0
+  },
+  {
+    "language": "ps",
+    "languageEn": "Pashto",
+    "languageZh": "普什图语",
+    "orders": 0
+  },
+  {
+    "language": "fa",
+    "languageEn": "Persian",
+    "languageZh": "波斯语",
+    "orders": 0
+  },
+  {
+    "language": "pl",
+    "languageEn": "Polish",
+    "languageZh": "波兰语",
+    "orders": 0
+  },
+  {
+    "language": "pt",
+    "languageEn": "Portuguese",
+    "languageZh": "葡萄牙语（葡萄牙巴西）",
+    "orders": 0
+  },
+  {
+    "language": "pa",
+    "languageEn": "Punjabi",
+    "languageZh": "旁遮普语",
+    "orders": 0
+  },
+  {
+    "language": "qu",
+    "languageEn": "Quechua",
+    "languageZh": "克丘亚语",
+    "orders": 0
+  },
+  {
+    "language": "ro",
+    "languageEn": "Romanian",
+    "languageZh": "罗马尼亚语",
+    "orders": 0
+  },
+  {
+    "language": "ru",
+    "languageEn": "Russian",
+    "languageZh": "俄语",
+    "orders": 0
+  },
+  {
+    "language": "sm",
+    "languageEn": "Samoan",
+    "languageZh": "萨摩亚语",
+    "orders": 0
+  },
+  {
+    "language": "sa",
+    "languageEn": "Sanskrit",
+    "languageZh": "梵语",
+    "orders": 0
+  },
+  {
+    "language": "gd",
+    "languageEn": "Scots Gaelic",
+    "languageZh": "苏格兰盖尔语",
+    "orders": 0
+  },
+  {
+    "language": "nso",
+    "languageEn": "Sepedi",
+    "languageZh": "塞佩蒂语",
+    "orders": 0
+  },
+  {
+    "language": "sr",
+    "languageEn": "Serbian",
+    "languageZh": "塞尔维亚语",
+    "orders": 0
+  },
+  {
+    "language": "st",
+    "languageEn": "Sesotho",
+    "languageZh": "塞索托语",
+    "orders": 0
+  },
+  {
+    "language": "sn",
+    "languageEn": "Shona",
+    "languageZh": "修纳语",
+    "orders": 0
+  },
+  {
+    "language": "sd",
+    "languageEn": "Sindhi",
+    "languageZh": "信德语",
+    "orders": 0
+  },
+  {
+    "language": "si",
+    "languageEn": "Sinhala",
+    "languageZh": "僧伽罗语",
+    "orders": 0
+  },
+  {
+    "language": "sk",
+    "languageEn": "Slovak",
+    "languageZh": "斯洛伐克语",
+    "orders": 0
+  },
+  {
+    "language": "sl",
+    "languageEn": "Slovenian",
+    "languageZh": "斯洛文尼亚语",
+    "orders": 0
+  },
+  {
+    "language": "so",
+    "languageEn": "Somali",
+    "languageZh": "索马里语",
+    "orders": 0
+  },
+  {
+    "language": "es",
+    "languageEn": "Spanish",
+    "languageZh": "西班牙语",
+    "orders": 0
+  },
+  {
+    "language": "su",
+    "languageEn": "Sundanese",
+    "languageZh": "巽他语",
+    "orders": 0
+  },
+  {
+    "language": "sw",
+    "languageEn": "Swahili",
+    "languageZh": "斯瓦希里语",
+    "orders": 0
+  },
+  {
+    "language": "sv",
+    "languageEn": "Swedish",
+    "languageZh": "瑞典语",
+    "orders": 0
+  },
+  {
+    "language": "tl",
+    "languageEn": "Tagalog (Filipino)",
+    "languageZh": "塔加路语（菲律宾语）",
+    "orders": 0
+  },
+  {
+    "language": "tg",
+    "languageEn": "Tajik",
+    "languageZh": "塔吉克语",
+    "orders": 0
+  },
+  {
+    "language": "ta",
+    "languageEn": "Tamil",
+    "languageZh": "泰米尔语",
+    "orders": 0
+  },
+  {
+    "language": "tt",
+    "languageEn": "Tatar",
+    "languageZh": "鞑靼语",
+    "orders": 0
+  },
+  {
+    "language": "te",
+    "languageEn": "Telugu",
+    "languageZh": "泰卢固语",
+    "orders": 0
+  },
+  {
+    "language": "th",
+    "languageEn": "Thai",
+    "languageZh": "泰语",
+    "orders": 0
+  },
+  {
+    "language": "ti",
+    "languageEn": "Tigrinya",
+    "languageZh": "蒂格尼亚语",
+    "orders": 0
+  },
+  {
+    "language": "ts",
+    "languageEn": "Tsonga",
+    "languageZh": "宗加语",
+    "orders": 0
+  },
+  {
+    "language": "tr",
+    "languageEn": "Turkish",
+    "languageZh": "土耳其语",
+    "orders": 0
+  },
+  {
+    "language": "tk",
+    "languageEn": "Turkmen",
+    "languageZh": "土库曼语",
+    "orders": 0
+  },
+  {
+    "language": "ak",
+    "languageEn": "Twi (Akan)",
+    "languageZh": "契维语（阿坎语）",
+    "orders": 0
+  },
+  {
+    "language": "uk",
+    "languageEn": "Ukrainian",
+    "languageZh": "乌克兰语",
+    "orders": 0
+  },
+  {
+    "language": "ur",
+    "languageEn": "Urdu",
+    "languageZh": "乌尔都语",
+    "orders": 0
+  },
+  {
+    "language": "ug",
+    "languageEn": "Uyghur",
+    "languageZh": "维吾尔语",
+    "orders": 0
+  },
+  {
+    "language": "uz",
+    "languageEn": "Uzbek",
+    "languageZh": "乌兹别克语",
+    "orders": 0
+  },
+  {
+    "language": "vi",
+    "languageEn": "Vietnamese",
+    "languageZh": "越南语",
+    "orders": 0
+  },
+  {
+    "language": "cy",
+    "languageEn": "Welsh",
+    "languageZh": "威尔士语",
+    "orders": 0
+  },
+  {
+    "language": "xh",
+    "languageEn": "Xhosa",
+    "languageZh": "班图语",
+    "orders": 0
+  },
+  {
+    "language": "yi",
+    "languageEn": "Yiddish",
+    "languageZh": "意第绪语",
+    "orders": 0
+  },
+  {
+    "language": "yo",
+    "languageEn": "Yoruba",
+    "languageZh": "约鲁巴语",
+    "orders": 0
+  },
+  {
+    "language": "zu",
+    "languageEn": "Zulu",
+    "languageZh": "祖鲁语",
+    "orders": 0
+  }
+]

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.gms.ads.nativead.NativeAdView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/nav_layout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_white">
+
+        <com.google.android.gms.ads.nativead.MediaView
+            android:id="@+id/media_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            tools:background="#FF6ACAFF"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.95"
+            app:layout_constraintDimensionRatio="2.278"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <ImageView
+            android:id="@+id/ad_icon"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginTop="8dp"
+            tools:background="#FF6ACAFF"
+            app:layout_constraintTop_toBottomOf="@id/media_view"
+            app:layout_constraintStart_toStartOf="@id/media_view"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/ad_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="Node is temporarily unavailable "
+            android:textColor="#FF1A1A1A"
+            android:textSize="12sp"
+            android:layout_marginStart="9dp"
+            android:layout_marginEnd="19dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/ad_content"
+            app:layout_constraintTop_toTopOf="@id/ad_icon"
+            app:layout_constraintStart_toEndOf="@id/ad_icon"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/ad_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:textColor="#FF999999"
+            android:maxLines="2"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/ad_title"
+            app:layout_constraintTop_toBottomOf="@id/ad_title"
+            app:layout_constraintBottom_toBottomOf="@id/ad_icon"
+            android:text="Node is temporarily unavailable is temporarily"/>
+
+        <TextView
+            android:id="@+id/ad_call"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            tools:text="INSTALL"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="6dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ad_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.95"
+            android:background="@drawable/big_ad_install"/>
+
+        <TextView
+            android:id="@+id/tag_tv"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AD"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:background="@drawable/big_ad_install"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.gms.ads.nativead.NativeAdView>
