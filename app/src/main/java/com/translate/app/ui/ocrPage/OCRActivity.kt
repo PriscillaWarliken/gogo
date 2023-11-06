@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,17 +44,14 @@ import com.google.gson.JsonArray
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
 import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
-import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
-import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
-import com.translate.app.ads.callback.FullAdCallback
-import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.callback.IntAdCallback
+import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.repository.ServiceCreator
 import com.translate.app.repository.bean.Data
@@ -72,7 +68,7 @@ import kotlin.coroutines.resume
 import kotlin.math.sqrt
 
 
-class OCRActivity : BaseActivity(),FullAdCallback,SmallAdCallback {
+class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
 
     companion object{
         var resultBitmap: Bitmap? = null
@@ -361,7 +357,7 @@ class OCRActivity : BaseActivity(),FullAdCallback,SmallAdCallback {
         AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
     }
 
-    override fun getFullFromPool(adWrapper: AdWrapper?) {
+    override fun getIntAdFromPool(adWrapper: AdWrapper?) {
         adWrapper?.let {
             it.showAdInstance(this)
             return
@@ -370,7 +366,7 @@ class OCRActivity : BaseActivity(),FullAdCallback,SmallAdCallback {
         finish()
     }
 
-    override fun onCloseFull() {
+    override fun onCloseIntAd() {
         navActivity<ResultActivity>()
         finish()
     }
@@ -384,8 +380,7 @@ class OCRActivity : BaseActivity(),FullAdCallback,SmallAdCallback {
         }
     }
 
-    var adWrapper= mutableStateOf<AdWrapper?>(null)
-    override fun getSmallFromPool(adWrapper: AdWrapper) {
+    override fun getNavAdFromPool(adWrapper: AdWrapper) {
         this.adWrapper.value=adWrapper
     }
 }

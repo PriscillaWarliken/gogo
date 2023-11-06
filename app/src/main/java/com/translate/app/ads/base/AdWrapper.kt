@@ -71,11 +71,6 @@ class AdWrapper(
                     uploadAdjustAdValue(it.valueMicros,it.currencyCode,place,id,"admob")
                 }
             }
-            is AdView -> {
-                (mAdInstance as AdView).setOnPaidEventListener {
-                    uploadAdjustAdValue(it.valueMicros,it.currencyCode,place,id,"admob")
-                }
-            }
         }
     }
 

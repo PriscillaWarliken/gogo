@@ -29,18 +29,17 @@ import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
-import com.translate.app.ads.callback.FullAdCallback
-import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.callback.IntAdCallback
+import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.TopBar
 import com.translate.app.ui.weight.NativeAdsView
 import com.translate.app.ui.weight.TranslateEditView
 import com.translate.app.ui.weight.click
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class TranslateActivity : BaseActivity(),FullAdCallback, SmallAdCallback {
+class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
 
     val viewModel by viewModels<TranslateViewModel>()
     private var showAnimState by mutableStateOf(value = false)
@@ -117,7 +116,7 @@ class TranslateActivity : BaseActivity(),FullAdCallback, SmallAdCallback {
         AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
     }
 
-    override fun getFullFromPool(adWrapper: AdWrapper?) {
+    override fun getIntAdFromPool(adWrapper: AdWrapper?) {
         adWrapper?.let {
             it.showAdInstance(this)
             return
@@ -125,7 +124,7 @@ class TranslateActivity : BaseActivity(),FullAdCallback, SmallAdCallback {
         navActivity<TranslateResultActivity>()
     }
 
-    override fun onCloseFull() {
+    override fun onCloseIntAd() {
         navActivity<TranslateResultActivity>()
     }
 
@@ -137,8 +136,7 @@ class TranslateActivity : BaseActivity(),FullAdCallback, SmallAdCallback {
         }
     }
 
-    var adWrapper= mutableStateOf<AdWrapper?>(null)
-    override fun getSmallFromPool(adWrapper: AdWrapper) {
+    override fun getNavAdFromPool(adWrapper: AdWrapper) {
         this.adWrapper.value=adWrapper
     }
 

@@ -53,7 +53,7 @@ import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
-import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.ImagePickerActivity
@@ -68,7 +68,7 @@ import com.translate.app.ui.weight.click
 import kotlinx.coroutines.launch
 
 
-class TranslateResultActivity : BaseActivity(),LanguageChangeListener, SmallAdCallback {
+class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCallback {
 
     val viewModel by viewModels<TranslateViewModel>()
     private var showAnimState by mutableStateOf(value = false)
@@ -210,8 +210,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, SmallAdCa
         }
     }
 
-    var adWrapper= mutableStateOf<AdWrapper?>(null)
-    override fun getSmallFromPool(adWrapper: AdWrapper) {
+    override fun getNavAdFromPool(adWrapper: AdWrapper) {
         this.adWrapper.value=adWrapper
     }
 

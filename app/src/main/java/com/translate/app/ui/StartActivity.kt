@@ -28,14 +28,14 @@ import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
-import com.translate.app.ads.callback.FullAdCallback
-import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.callback.IntAdCallback
+import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
 import kotlinx.coroutines.delay
 
-class StartActivity : BaseActivity(), FullAdCallback,SmallAdCallback {
+class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
 
     private var launchTime = 10
 
@@ -98,8 +98,8 @@ class StartActivity : BaseActivity(), FullAdCallback,SmallAdCallback {
         AdManager.clearSmallCallBack()
     }
 
-    var adWrapper= mutableStateOf<AdWrapper?>(null)
-    override fun getSmallFromPool(adWrapper: AdWrapper) {
+
+    override fun getNavAdFromPool(adWrapper: AdWrapper) {
         this.adWrapper.value=adWrapper
     }
 
@@ -113,7 +113,7 @@ class StartActivity : BaseActivity(), FullAdCallback,SmallAdCallback {
         AdManager.getAdObjFromPool(Const.AdConst.AD_START)
     }
 
-    override fun getFullFromPool(adWrapper: AdWrapper?) {
+    override fun getIntAdFromPool(adWrapper: AdWrapper?) {
         adWrapper?.let {
             it.showAdInstance(this)
             return
@@ -122,7 +122,7 @@ class StartActivity : BaseActivity(), FullAdCallback,SmallAdCallback {
         finish()
     }
 
-    override fun onCloseFull() {
+    override fun onCloseIntAd() {
         navActivity<MainActivity>()
         finish()
     }

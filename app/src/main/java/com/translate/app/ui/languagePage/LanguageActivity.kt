@@ -36,7 +36,7 @@ import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
-import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.repository.bean.LanguageBeanItem
 import com.translate.app.ui.BaseActivity
@@ -48,7 +48,7 @@ import com.translate.app.ui.weight.SearchEdit
 import com.translate.app.ui.weight.click
 import com.translate.app.ui.weight.saveSP
 
-class LanguageActivity : BaseActivity(),SmallAdCallback {
+class LanguageActivity : BaseActivity(),NavAdCallback {
 
     companion object{
         var sourceSelectState by mutableStateOf(value = true)
@@ -227,7 +227,7 @@ class LanguageActivity : BaseActivity(),SmallAdCallback {
         }
 
         if (index == 0) {
-            adWrapper.value?.let {
+            adNativeAd.value?.let {
                 NativeAdsView(
                     isBig = false, mAdInstance = it, modifier = Modifier
                         .padding(top = 12.dp)
@@ -285,8 +285,8 @@ class LanguageActivity : BaseActivity(),SmallAdCallback {
         }
     }
 
-    var adWrapper= mutableStateOf<NativeAd?>(null)
-    override fun getSmallFromPool(adWrapper: AdWrapper) {
-        this.adWrapper.value = adWrapper.getAdInstance() as NativeAd
+    var adNativeAd= mutableStateOf<NativeAd?>(null)
+    override fun getNavAdFromPool(adWrapper: AdWrapper) {
+        this.adNativeAd.value = adWrapper.getAdInstance() as NativeAd
     }
 }

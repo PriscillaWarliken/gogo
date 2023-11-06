@@ -30,13 +30,7 @@ class ImagePickerLauncher(
 }
 
 private fun createImagePickerIntent(context: Context, config: ImagePickerConfig, clazz: Class<*>): Intent {
-    val intent: Intent
-    if (config.isCameraMode) {
-        intent = Intent(context, CameraActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-    } else {
-        intent = Intent(context, clazz)
-    }
+    val intent: Intent = Intent(context, clazz)
     intent.putExtra(Constants.EXTRA_CONFIG, config)
     return intent
 }

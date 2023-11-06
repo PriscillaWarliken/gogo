@@ -8,16 +8,19 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.translate.app.R
+import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ui.weight.CoilImage
 
 open class BaseActivity : ComponentActivity() {
 
+    protected var adWrapper= mutableStateOf<AdWrapper?>(null)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -44,6 +47,10 @@ open class BaseActivity : ComponentActivity() {
         })
     }
 
+    override fun onPause() {
+        super.onPause()
+        adWrapper.value = null
+    }
 
     inline fun <reified T: Activity> navActivity(){
         val intent = Intent(this, T::class.java)

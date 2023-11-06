@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -37,7 +36,7 @@ import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
-import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.ImagePickerActivity
 import com.translate.app.ui.TopBar
@@ -51,7 +50,7 @@ import java.util.Locale
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-class CaptureActivity : BaseActivity(), SmallAdCallback {
+class CaptureActivity : BaseActivity(), NavAdCallback {
 
     private var showPermissionDialog by mutableStateOf(value = false)
     private var images = ArrayList<Image>()
@@ -266,8 +265,8 @@ class CaptureActivity : BaseActivity(), SmallAdCallback {
         }
     }
 
-    var adWrapper= mutableStateOf<AdWrapper?>(null)
-    override fun getSmallFromPool(adWrapper: AdWrapper) {
+
+    override fun getNavAdFromPool(adWrapper: AdWrapper) {
         this.adWrapper.value=adWrapper
     }
 

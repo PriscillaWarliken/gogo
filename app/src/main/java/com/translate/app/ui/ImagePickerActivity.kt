@@ -37,11 +37,11 @@ import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
-import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.ui.languagePage.LanguageActivity
 
 class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageSelectListener,
-    SmallAdCallback {
+    NavAdCallback {
 
     companion object{
         var sourceLanguage = ""
@@ -422,7 +422,7 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
         }
     }
 
-    override fun getSmallFromPool(adWrapper: AdWrapper) {
+    override fun getNavAdFromPool(adWrapper: AdWrapper) {
         adWrapper.showAdInstance(this,binding.adLayout,false)
     }
 }

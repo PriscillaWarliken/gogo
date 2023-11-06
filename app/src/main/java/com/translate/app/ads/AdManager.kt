@@ -13,8 +13,8 @@ import com.translate.app.ads.base.IntAd
 import com.translate.app.ads.base.NavAd
 import com.translate.app.ads.base.OpenAd
 import com.translate.app.ads.callback.AdCallBack
-import com.translate.app.ads.callback.FullAdCallback
-import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.callback.IntAdCallback
+import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.repository.Repository
 import java.util.TimeZone
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -27,9 +27,9 @@ object AdManager {
     val smallPoolPool = ConcurrentLinkedQueue<AdWrapper>()
     val fullPoolPool = ConcurrentLinkedQueue<AdWrapper>()
 
-    private var smallCallMap = mutableMapOf<String, SmallAdCallback>()
+    private var smallCallMap = mutableMapOf<String, NavAdCallback>()
 
-    private lateinit var mFullCallBack: FullAdCallback
+    private lateinit var mFullCallBack: IntAdCallback
 
     var skipTag = mutableListOf<String>()
     var skipLiveData = MutableLiveData<MutableList<String>>()
@@ -48,11 +48,11 @@ object AdManager {
     private var adSite = BuildConfig.adSite
 
 
-    fun setFullCallBack(l: FullAdCallback) {
+    fun setFullCallBack(l: IntAdCallback) {
         this.mFullCallBack = l
     }
 
-    fun setSmallCallBack(l: SmallAdCallback,place: String) {
+    fun setSmallCallBack(l: NavAdCallback, place: String) {
         smallCallMap.clear()
         smallCallMap[place] = l
     }
@@ -86,22 +86,22 @@ object AdManager {
         Adjust.trackEvent(event)
     }
 
-    fun initAdMapConfig(admap:MutableMap<String, AdWrapper>, clickLimit:Int = 3) {
+    fun initAdMapConfig(adMap:MutableMap<String, AdWrapper>, clickLimit:Int = 3) {
         try {
             if (this::mAdConfigMap.isInitialized.not()) {
-                mAdConfigMap = admap
+                mAdConfigMap = adMap
                 return
             }
             mAdConfigMap.map {
-                it.value.place = admap[it.key]!!.place
-                it.value.openBtn = admap[it.key]!!.openBtn
-                it.value.innerAdList = admap[it.key]!!.innerAdList
+                it.value.place = adMap[it.key]!!.place
+                it.value.openBtn = adMap[it.key]!!.openBtn
+                it.value.innerAdList = adMap[it.key]!!.innerAdList
             }
-            resetUpNavLimit(clickLimit)
+            reloadNavLimit(clickLimit)
         }catch (_:Exception){}
     }
 
-    private fun resetUpNavLimit(navClickCount: Int) {
+    private fun reloadNavLimit(navClickCount: Int) {
         this.navClickCount = navClickCount
         this.nowClickCount = Repository.sharedPreferences.getInt(Const.AdConst.CLICK_COUNT,0)
         val clickTime = Repository.sharedPreferences.getLong(Const.AdConst.CLICK_TIME, 0L)
@@ -157,7 +157,6 @@ object AdManager {
     }
 
     private fun loadAdInstancePlace(adWrapper: AdWrapper, place: String, index:Int = 0) {
-
         if (adWrapper.adLoading) {
             Log.d(TAG, "$place 正在请求中---> 等待回调结果")
             return
@@ -235,7 +234,7 @@ object AdManager {
                 }
 
                 override fun onClose() {
-                    mFullCallBack.onCloseFull()
+                    mFullCallBack.onCloseIntAd()
                 }
 
                 override fun onClick() {
@@ -261,7 +260,7 @@ object AdManager {
 
                     if (needShowNav && App.isBackground.not()) {
                         smallCallMap[place]?.let {
-                            it.getSmallFromPool(adWrapper)
+                            it.getNavAdFromPool(adWrapper)
                             smallPoolPool.remove(adWrapper)
                             clearSmallCallBack()
                         }
@@ -350,7 +349,7 @@ object AdManager {
                 }
 
                 override fun onClose() {
-                    mFullCallBack.onCloseFull()
+                    mFullCallBack.onCloseIntAd()
                 }
 
                 override fun onClick() {
@@ -364,14 +363,14 @@ object AdManager {
         try {
             if ((!::mAdConfigMap.isInitialized)) {
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
-                    mFullCallBack.getFullFromPool(null)
+                    mFullCallBack.getIntAdFromPool(null)
                 }
                 return
             }
 
             if (mAdConfigMap[adLocation]?.openBtn == false) {
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
-                    mFullCallBack.getFullFromPool(null)
+                    mFullCallBack.getIntAdFromPool(null)
                 }
                 return
             }
@@ -379,7 +378,7 @@ object AdManager {
             if (App.isBackground) {
                 Log.d(TAG, "禁止在后台获取广告 ${adLocation}")
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
-                    mFullCallBack.getFullFromPool(null)
+                    mFullCallBack.getIntAdFromPool(null)
                 }
                 return
             }
@@ -404,7 +403,7 @@ object AdManager {
             if (!isSmallAdConst) {
                 val sortList = fullPoolPool.sortedByDescending { it.weight }
                 if (sortList.isEmpty()) {
-                    mFullCallBack.getFullFromPool(null)
+                    mFullCallBack.getIntAdFromPool(null)
                     return
                 }
                 val lowAdWeight = sortList.last().weight
@@ -414,13 +413,13 @@ object AdManager {
                     }
 
                     if (sortList.size == 1) {
-                        mFullCallBack.getFullFromPool(it)
+                        mFullCallBack.getIntAdFromPool(it)
                         fullPoolPool.remove(it)
                         return
                     }
 
                     if (it.weight > lowAdWeight) {
-                        mFullCallBack.getFullFromPool(it)
+                        mFullCallBack.getIntAdFromPool(it)
                         fullPoolPool.remove(it)
                         return
                     }
@@ -428,18 +427,18 @@ object AdManager {
 
                 val adWrapper: AdWrapper? = fullPoolPool.find { it.place == adLocation }
                 adWrapper?.let {
-                    mFullCallBack.getFullFromPool(it)
+                    mFullCallBack.getIntAdFromPool(it)
                     fullPoolPool.remove(it)
                     return
                 }
-                mFullCallBack.getFullFromPool(null)
+                mFullCallBack.getIntAdFromPool(null)
             } else {
                 val sortList = smallPoolPool.sortedByDescending { it.weight }
                 val lowAdWeight = sortList.last().weight
                 sortList.forEach {
                     if (it.weight > lowAdWeight) {
                         smallPoolPool.remove(it)
-                        smallCallMap[adLocation]?.getSmallFromPool(it)
+                        smallCallMap[adLocation]?.getNavAdFromPool(it)
                         return
                     }
                 }
@@ -447,7 +446,7 @@ object AdManager {
                 val adWrapper: AdWrapper? = smallPoolPool.find { it.place == adLocation }
                 adWrapper?.let {
                     smallPoolPool.remove(it)
-                    smallCallMap[adLocation]?.getSmallFromPool(it)
+                    smallCallMap[adLocation]?.getNavAdFromPool(it)
                     return
                 }
 

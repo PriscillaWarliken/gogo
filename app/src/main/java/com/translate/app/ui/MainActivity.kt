@@ -49,8 +49,8 @@ import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
-import com.translate.app.ads.callback.FullAdCallback
-import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.callback.IntAdCallback
+import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.ads.getMoringTime
 import com.translate.app.repository.Repository
 import com.translate.app.ui.languagePage.LanguageActivity
@@ -62,7 +62,7 @@ import com.translate.app.ui.weight.NativeAdsView
 import com.translate.app.ui.weight.click
 
 
-class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
+class MainActivity : BaseActivity(),NavAdCallback,IntAdCallback {
 
     private val ABLUM_TAG = 0
     private val CAPTURE_TAG = 1
@@ -138,9 +138,11 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
                     }
 
                     adWrapper.value?.let {
-                        NativeAdsView(adWrapper = it,modifier = Modifier
-                            .padding(top = 20.dp)
-                            .padding(horizontal = 20.dp))
+                        NativeAdsView(
+                            adWrapper = it, modifier = Modifier
+                                .padding(top = 20.dp)
+                                .padding(horizontal = 20.dp)
+                        )
                     }
                 }
 
@@ -287,8 +289,7 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
         }
     }
 
-    var adWrapper= mutableStateOf<AdWrapper?>(null)
-    override fun getSmallFromPool(adWrapper: AdWrapper) {
+    override fun getNavAdFromPool(adWrapper: AdWrapper) {
         this.adWrapper.value=adWrapper
     }
 
@@ -298,7 +299,7 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
         AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
     }
 
-    override fun getFullFromPool(adWrapper: AdWrapper?) {
+    override fun getIntAdFromPool(adWrapper: AdWrapper?) {
         adWrapper?.let {
             it.showAdInstance(this)
             return
@@ -306,7 +307,7 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
         jumpNextActivity()
     }
 
-    override fun onCloseFull() {
+    override fun onCloseIntAd() {
         jumpNextActivity()
     }
 

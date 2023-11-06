@@ -1,6 +1,5 @@
 package com.translate.app.ui.ocrPage
 
-import android.R.attr.bitmap
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,7 +31,7 @@ import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
-import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.MainActivity
 import com.translate.app.ui.translatePage.TranslateActivity
@@ -43,7 +41,7 @@ import com.translate.app.ui.weight.click
 import java.util.Calendar
 
 
-class ResultActivity : BaseActivity(),SmallAdCallback {
+class ResultActivity : BaseActivity(),NavAdCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -171,8 +169,7 @@ class ResultActivity : BaseActivity(),SmallAdCallback {
         }
     }
 
-    var adWrapper= mutableStateOf<AdWrapper?>(null)
-    override fun getSmallFromPool(adWrapper: AdWrapper) {
+    override fun getNavAdFromPool(adWrapper: AdWrapper) {
         this.adWrapper.value=adWrapper
     }
 }
