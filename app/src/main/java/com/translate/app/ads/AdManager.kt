@@ -107,7 +107,7 @@ object AdManager {
         val clickTime = Repository.sharedPreferences.getLong(Const.AdConst.CLICK_TIME, 0L)
         permissionNav = Repository.sharedPreferences.getBoolean(Const.AdConst.canLoadNav,true)
 
-        if (!permissionNav && getTodayTime() - clickTime >= 1) {
+        if (!permissionNav && getMoringTime() - clickTime >= 1) {
             this.nowClickCount = 0
             permissionNav = true
             Repository.sharedPreferences.edit {
@@ -360,7 +360,7 @@ object AdManager {
         }.loadAd(adWrapper.id)
     }
 
-    fun getAdInstanceFromPool(adLocation: String) {
+    fun getAdObjFromPool(adLocation: String) {
         try {
             if ((!::mAdConfigMap.isInitialized)) {
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
@@ -377,7 +377,7 @@ object AdManager {
             }
 
             if (App.isBackground) {
-                Log.d(TAG, "禁止在后台获取广告")
+                Log.d(TAG, "禁止在后台获取广告 ${adLocation}")
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
                     mFullCallBack.getFullFromPool(null)
                 }
@@ -476,7 +476,7 @@ object AdManager {
 
 }
 
-fun getTodayTime(): Long {
+fun getMoringTime(): Long {
     val times = System.currentTimeMillis()
     return times - (times + TimeZone.getDefault().rawOffset) % (24 * 60 * 60 * 1000L)
 }

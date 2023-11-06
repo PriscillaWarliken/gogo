@@ -6,6 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.core.content.edit
+import com.google.gson.Gson
+import com.google.gson.JsonElement
+import com.google.gson.reflect.TypeToken
+import com.translate.app.Const
+import com.translate.app.repository.Repository
+import com.translate.app.repository.bean.LanguageBeanItem
+import java.util.Objects
 
 /**
  * View的click方法的两次点击间隔时间
@@ -35,4 +43,18 @@ inline fun Modifier.click(
             MutableInteractionSource()
         }
     )
+}
+
+fun Any.saveSP(tag: String) {
+    val json = Gson().toJson(this)
+    Repository.sharedPreferences.edit {
+        putString(tag,json)
+    }
+}
+
+inline fun<reified T> String.getSpByTag(): LanguageBeanItem? {
+    Repository.sharedPreferences.getString(this,"")?.let {
+        return Gson().fromJson<LanguageBeanItem>(it, T::class.java)
+    }
+    return null
 }

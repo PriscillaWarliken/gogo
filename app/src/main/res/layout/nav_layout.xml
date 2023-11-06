@@ -12,10 +12,10 @@
 
         <ImageView
             android:id="@+id/ad_icon"
-            android:layout_width="68dp"
-            android:layout_height="68dp"
-            android:layout_marginVertical="7dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:layout_marginVertical="12dp"
+            android:layout_marginStart="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
@@ -72,7 +72,7 @@
             android:textSize="12sp"
             android:paddingHorizontal="4dp"
             android:paddingVertical="1dp"
-            android:background="@drawable/ad_install"
+            android:background="@drawable/big_ad_install"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
 

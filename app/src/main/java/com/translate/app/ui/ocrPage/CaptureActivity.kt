@@ -1,12 +1,12 @@
 package com.translate.app.ui.ocrPage
 
+import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -14,13 +14,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.compose.ui.unit.dp
+import com.nguyenhoanglam.imagepicker.helper.PermissionHelper
 import com.nguyenhoanglam.imagepicker.model.CustomColor
 import com.nguyenhoanglam.imagepicker.model.CustomMessage
 import com.nguyenhoanglam.imagepicker.model.GridCount
@@ -29,11 +32,18 @@ import com.nguyenhoanglam.imagepicker.model.ImagePickerConfig
 import com.nguyenhoanglam.imagepicker.model.IndicatorType
 import com.nguyenhoanglam.imagepicker.model.RootDirectory
 import com.nguyenhoanglam.imagepicker.ui.imagepicker.registerImagePicker
+import com.translate.app.App
+import com.translate.app.Const
 import com.translate.app.R
+import com.translate.app.ads.AdManager
+import com.translate.app.ads.base.AdWrapper
+import com.translate.app.ads.callback.SmallAdCallback
 import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.ImagePickerActivity
 import com.translate.app.ui.TopBar
 import com.translate.app.ui.languagePage.LanguageActivity
+import com.translate.app.ui.weight.NativeAdsView
+import com.translate.app.ui.weight.PermissDialog
 import com.translate.app.ui.weight.PreViewMainLayout
 import java.io.File
 import java.text.SimpleDateFormat
@@ -41,8 +51,9 @@ import java.util.Locale
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-class CaptureActivity : BaseActivity() {
+class CaptureActivity : BaseActivity(), SmallAdCallback {
 
+    private var showPermissionDialog by mutableStateOf(value = false)
     private var images = ArrayList<Image>()
     private val launcher = registerImagePicker {
         if (it.isNullOrEmpty()) {
@@ -108,18 +119,26 @@ class CaptureActivity : BaseActivity() {
         launcher.launch(config, ImagePickerActivity::class.java)
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestAllPermission()
         setContent {
-            var lensFacing = remember {
+            val lensFacing = remember {
                 mutableStateOf(value = CameraSelector.LENS_FACING_BACK)
             }
             Box(modifier = Modifier
                 .statusBarsPadding()
                 .fillMaxSize()){
-                TopBar()
+                Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally){
+                    TopBar()
+
+                    adWrapper.value?.let {
+                        NativeAdsView(isBig = false, adWrapper = it,modifier = Modifier
+                            .padding(top = 20.dp)
+                            .padding(horizontal = 20.dp))
+                    }
+                }
                 Column(modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()) {
@@ -141,43 +160,46 @@ class CaptureActivity : BaseActivity() {
                 }
             }
 
+            if (showPermissionDialog) {
+                PermissDialog{showPermissionDialog = false}
+            }
         }
     }
 
     private fun requestAllPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val permissions = arrayOf(
-                android.Manifest.permission.CAMERA,
-            )
-            for (str in permissions) {
-                if (ContextCompat.checkSelfPermission(
-                        this,
-                        str
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE_CONTACT)
-                    return
+            val readPermission = Manifest.permission.CAMERA
+            when (PermissionHelper.checkPermission(this, readPermission)) {
+                PermissionHelper.STATUS.GRANTED -> {}
+
+                PermissionHelper.STATUS.NOT_GRANTED -> PermissionHelper.requestAllPermissions(
+                    this, arrayOf(readPermission), REQUEST_CODE_CAPTURE
+                )
+
+                PermissionHelper.STATUS.DENIED -> PermissionHelper.requestAllPermissions(
+                    this, arrayOf(readPermission), REQUEST_CODE_CAPTURE
+                )
+
+                else->{
+                    showPermissionDialog = true
                 }
             }
         }
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        if (REQUEST_CODE_CONTACT == requestCode && grantResults.first() == -1) {
-//            val intent = Intent()
-//            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-//            val uri = Uri.fromParts("package", packageName, null)
-//            intent.data = uri
-//            intent.putExtra("app_package", packageName)
-//            intent.putExtra("app_uid", applicationInfo.uid)
-//            startActivity(intent)
-//            Log.d("TAG", "onRequestPermissionsResult: ${grantResults},${permissions}")
-//        }
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray
+    ){
+        when (requestCode) {
+            REQUEST_CODE_CAPTURE->{
+                if (PermissionHelper.hasGranted(grantResults).not()) {
+                    finish()
+                }
+            }
+            else ->{
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            }
+        }
     }
 
 
@@ -235,7 +257,21 @@ class CaptureActivity : BaseActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
+
+    override fun onStart() {
+        super.onStart()
+        if (App.isBackground.not()) {
+            AdManager.setSmallCallBack(this, Const.AdConst.AD_OTHER)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_OTHER)
+        }
+    }
+
+    var adWrapper= mutableStateOf<AdWrapper?>(null)
+    override fun getSmallFromPool(adWrapper: AdWrapper) {
+        this.adWrapper.value=adWrapper
+    }
+
     companion object{
-        val REQUEST_CODE_CONTACT = 1
+        const val REQUEST_CODE_CAPTURE = 1
     }
 }

@@ -6,17 +6,10 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,9 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -36,7 +27,6 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.gson.JsonArray
 import com.translate.app.App
 import com.translate.app.Const
-import com.translate.app.R
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ads.callback.FullAdCallback
@@ -44,13 +34,10 @@ import com.translate.app.ads.callback.SmallAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.TopBar
-import com.translate.app.ui.languagePage.LanguageActivity
-import com.translate.app.ui.ocrPage.ResultActivity
-import com.translate.app.ui.weight.CoilImage
-import com.translate.app.ui.weight.CommentEditView
 import com.translate.app.ui.weight.NativeAdsView
 import com.translate.app.ui.weight.TranslateEditView
 import com.translate.app.ui.weight.click
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class TranslateActivity : BaseActivity(),FullAdCallback, SmallAdCallback {
@@ -99,7 +86,7 @@ class TranslateActivity : BaseActivity(),FullAdCallback, SmallAdCallback {
                         }
                     )
 
-                    adObj.value?.let {
+                    adWrapper.value?.let {
                         NativeAdsView(adWrapper = it,modifier = Modifier
                             .padding(top = 20.dp)
                             .padding(horizontal = 20.dp))
@@ -127,7 +114,7 @@ class TranslateActivity : BaseActivity(),FullAdCallback, SmallAdCallback {
 
     private fun showIntAd() {
         AdManager.setFullCallBack(this)
-        AdManager.getAdInstanceFromPool(Const.AdConst.AD_INSERT)
+        AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
     }
 
     override fun getFullFromPool(adWrapper: AdWrapper?) {
@@ -146,13 +133,13 @@ class TranslateActivity : BaseActivity(),FullAdCallback, SmallAdCallback {
         super.onStart()
         if (App.isBackground.not()) {
             AdManager.setSmallCallBack(this, Const.AdConst.AD_TEXT)
-            AdManager.getAdInstanceFromPool(Const.AdConst.AD_TEXT)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
         }
     }
 
-    var adObj= mutableStateOf<AdWrapper?>(null)
+    var adWrapper= mutableStateOf<AdWrapper?>(null)
     override fun getSmallFromPool(adWrapper: AdWrapper) {
-        adObj.value=adWrapper
+        this.adWrapper.value=adWrapper
     }
 
 }

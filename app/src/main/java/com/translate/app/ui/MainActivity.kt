@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,11 +51,11 @@ import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ads.callback.FullAdCallback
 import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ads.getMoringTime
 import com.translate.app.repository.Repository
 import com.translate.app.ui.languagePage.LanguageActivity
 import com.translate.app.ui.ocrPage.CaptureActivity
 import com.translate.app.ui.ocrPage.OCRActivity
-import com.translate.app.ui.ocrPage.ResultActivity
 import com.translate.app.ui.translatePage.TranslateActivity
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
@@ -63,6 +64,10 @@ import com.translate.app.ui.weight.click
 
 class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
 
+    private val ABLUM_TAG = 0
+    private val CAPTURE_TAG = 1
+    private val TRANSLATE_TAG = 2
+    private var clickTag = TRANSLATE_TAG
     private var images = ArrayList<Image>()
     private val launcher = registerImagePicker {
         if (it.isNullOrEmpty()) {
@@ -79,6 +84,12 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Repository.sharedPreferences.getLong(Const.USE_APP_TIME, 0L) < getMoringTime()) {
+            //重置今天使用翻译次数次数
+            Repository.sharedPreferences.edit {
+                putInt(Const.TRANSLATE_COUNT,0)
+            }
+        }
         setContent {
             BackHandler(enabled = true) {}
             Box(modifier = Modifier
@@ -108,7 +119,7 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
                         modifier = Modifier
                             .padding(top = 20.dp)
                             .click {
-                                navActivity<TranslateActivity>()
+                                clickTag = TRANSLATE_TAG
                                 spacerAdCount()
                             }
                     ){
@@ -126,7 +137,7 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
                         )
                     }
 
-                    adObj.value?.let {
+                    adWrapper.value?.let {
                         NativeAdsView(adWrapper = it,modifier = Modifier
                             .padding(top = 20.dp)
                             .padding(horizontal = 20.dp))
@@ -154,7 +165,7 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
                         CoilImage(modifier = Modifier
                             .size(155.dp, 128.dp)
                             .click {
-                                start()
+                                clickTag = ABLUM_TAG
                                 spacerAdCount()
                             }, data = R.mipmap.home_album)
                         Text(text = "Album", fontSize = 18.sp,modifier = Modifier
@@ -165,7 +176,7 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
                         CoilImage(modifier = Modifier
                             .size(155.dp, 128.dp)
                             .click {
-                                navActivity<CaptureActivity>()
+                                clickTag = CAPTURE_TAG
                                 spacerAdCount()
                             }, data = R.mipmap.home_camera
                     )
@@ -182,6 +193,8 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
     private fun spacerAdCount() {
         if (Repository.sharedPreferences.getInt(Const.TRANSLATE_COUNT,0) == 1){
             showIntAd()
+        }else{
+            jumpNextActivity()
         }
         Repository.sharedPreferences.apply {
             var count = getInt(Const.TRANSLATE_COUNT, 0)
@@ -270,19 +283,19 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
         super.onStart()
         if (App.isBackground.not()) {
             AdManager.setSmallCallBack(this, Const.AdConst.AD_TEXT)
-            AdManager.getAdInstanceFromPool(Const.AdConst.AD_TEXT)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
         }
     }
 
-    var adObj= mutableStateOf<AdWrapper?>(null)
+    var adWrapper= mutableStateOf<AdWrapper?>(null)
     override fun getSmallFromPool(adWrapper: AdWrapper) {
-        adObj.value=adWrapper
+        this.adWrapper.value=adWrapper
     }
 
 
     private fun showIntAd() {
         AdManager.setFullCallBack(this)
-        AdManager.getAdInstanceFromPool(Const.AdConst.AD_INSERT)
+        AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
     }
 
     override fun getFullFromPool(adWrapper: AdWrapper?) {
@@ -290,9 +303,33 @@ class MainActivity : BaseActivity(),SmallAdCallback,FullAdCallback {
             it.showAdInstance(this)
             return
         }
+        jumpNextActivity()
     }
 
-    override fun onCloseFull() {}
+    override fun onCloseFull() {
+        jumpNextActivity()
+    }
+
+    private fun jumpNextActivity() {
+        when (clickTag) {
+            TRANSLATE_TAG -> {
+                navActivity<TranslateActivity>()
+            }
+
+            ABLUM_TAG -> {
+                start()
+            }
+
+            CAPTURE_TAG -> {
+                navActivity<CaptureActivity>()
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        showPopupWindowState = false
+    }
 }
 
 @Composable
@@ -311,50 +348,57 @@ fun TopBar() {
                 context.finish()
             }, data = R.mipmap.universal_back)
 
-        Row(
+        Box(
             modifier = Modifier
                 .align(Alignment.Center)
+                .width(243.dp)
                 .height(44.dp)
                 .background(color = Color.White, shape = RoundedCornerShape(76.dp))
-                .padding(start = 20.dp, end = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
         ){
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.click {
-                    LanguageActivity.sourceSelectState = true
-                    context.navActivity<LanguageActivity>()
-                }
+                modifier = Modifier
+                    .padding(start = 20.dp)
+                    .align(Alignment.CenterStart)
+                    .click {
+                        LanguageActivity.sourceSelectState = true
+                        context.navActivity<LanguageActivity>()
+                    }
             ) {
-                Text(text = Repository.sourceLanguage!!.languageEn, fontSize = 16.sp,
+                Text(
+                    text = Repository.sourceLanguage!!.languageEn, fontSize = 16.sp,
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,modifier = Modifier.width(50.dp))
+                    maxLines = 1, modifier = Modifier.widthIn(max = 60.dp)
+                )
                 CoilImage(
                     modifier = Modifier
-                        .padding(start = 5.dp, end = 12.dp)
+                        .padding(start = 2.dp)
                         .size(11.dp, 6.dp),
                     data = R.mipmap.home_pulldown
                 )
             }
             CoilImage(
                 modifier = Modifier
-                    .padding(end = 20.dp)
+                    .align(Alignment.Center)
                     .size(34.dp, 25.dp),
                 data = R.mipmap.home_cut
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.click {
-                    LanguageActivity.sourceSelectState = false
-                    context.navActivity<LanguageActivity>()
-                }
+                modifier = Modifier
+                    .padding(end = 20.dp)
+                    .align(Alignment.CenterEnd)
+                    .click {
+                        LanguageActivity.sourceSelectState = false
+                        context.navActivity<LanguageActivity>()
+                    }
             ) {
                 Text(text = Repository.targetLanguage!!.languageEn, fontSize = 16.sp,
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,modifier = Modifier.width(50.dp))
+                    maxLines = 1,modifier = Modifier.widthIn(max = 60.dp))
                 CoilImage(
                     modifier = Modifier
-                        .padding(start = 12.dp, end = 5.dp)
+                        .padding(end = 2.dp)
                         .size(11.dp, 6.dp),
                     data = R.mipmap.home_pulldown
                 )

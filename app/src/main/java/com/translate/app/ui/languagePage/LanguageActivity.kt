@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.ads.nativead.NativeAd
 import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.R
@@ -45,6 +46,7 @@ import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
 import com.translate.app.ui.weight.SearchEdit
 import com.translate.app.ui.weight.click
+import com.translate.app.ui.weight.saveSP
 
 class LanguageActivity : BaseActivity(),SmallAdCallback {
 
@@ -161,16 +163,6 @@ class LanguageActivity : BaseActivity(),SmallAdCallback {
 
     @Composable
     private fun LanguageItemView(index: Int, languageBeanItem: LanguageBeanItem) {
-        if (index == 1) {
-            adObj.value?.let {
-                NativeAdsView(
-                    isBig = false, adWrapper = it, modifier = Modifier
-                        .padding(top = 12.dp)
-                        .fillMaxWidth(1f)
-                )
-            }
-        }
-
         var selectState = false
         val selectModifier = if (sourceSelectState) {
             if (Repository.sourceLanguage!! == languageBeanItem) {
@@ -233,6 +225,16 @@ class LanguageActivity : BaseActivity(),SmallAdCallback {
                     .size(24.dp), data = R.mipmap.selected)
             }
         }
+
+        if (index == 0) {
+            adWrapper.value?.let {
+                NativeAdsView(
+                    isBig = false, mAdInstance = it, modifier = Modifier
+                        .padding(top = 12.dp)
+                        .fillMaxWidth(1f)
+                )
+            }
+        }
     }
 
     @Composable
@@ -264,9 +266,11 @@ class LanguageActivity : BaseActivity(),SmallAdCallback {
 
     private fun setLanguageClick(languageBeanItem: LanguageBeanItem) {
         if (sourceSelectState) {
+            languageBeanItem.saveSP(Const.SOURCE_LANGUAGE)
             Repository.sourceLanguage = languageBeanItem
             ImagePickerActivity.setSourceLanguageMethod(languageBeanItem.languageEn)
         } else {
+            languageBeanItem.saveSP(Const.TARGET_LANGUAGE)
             Repository.targetLanguage = languageBeanItem
             ImagePickerActivity.setTargetLanguageMethod(languageBeanItem.languageEn)
         }
@@ -277,12 +281,12 @@ class LanguageActivity : BaseActivity(),SmallAdCallback {
         super.onStart()
         if (App.isBackground.not()) {
             AdManager.setSmallCallBack(this, Const.AdConst.AD_TEXT)
-            AdManager.getAdInstanceFromPool(Const.AdConst.AD_TEXT)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
         }
     }
 
-    var adObj= mutableStateOf<AdWrapper?>(null)
+    var adWrapper= mutableStateOf<NativeAd?>(null)
     override fun getSmallFromPool(adWrapper: AdWrapper) {
-        adObj.value=adWrapper
+        this.adWrapper.value = adWrapper.getAdInstance() as NativeAd
     }
 }

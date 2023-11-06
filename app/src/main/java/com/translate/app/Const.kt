@@ -28,6 +28,9 @@ object Const {
         }
     }
 
+    const val TARGET_LANGUAGE = "TARGET_LANGUAGE"
+    const val SOURCE_LANGUAGE = "SOURCE_LANGUAGE"
+    const val RECENT_LANGUAGE = "RECENT_LANGUAGE"
     const val PRIVACY_AGREE = "PRIVACY_AGREE"
     const val USE_APP_TIME = "USE_APP_TIME"
     const val TRANSLATE_COUNT = "TRANSLATE_COUNT"

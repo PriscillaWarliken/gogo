@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -79,18 +80,22 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, SmallAdCa
             showAnimState = false
         }
         setContent {
+            val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
                     .statusBarsPadding()
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxSize()
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 TopBar()
 
-                adObj.value?.let {
-                    NativeAdsView(isBig = false, adWrapper = it,modifier = Modifier
-                        .padding(top = 20.dp)
-                        .padding(horizontal = 20.dp))
+                adWrapper.value?.let {
+                    NativeAdsView(
+                        isBig = false, adWrapper = it, modifier = Modifier
+                            .padding(top = 20.dp)
+                            .padding(horizontal = 20.dp)
+                    )
                 }
 
                 Column(
@@ -104,7 +109,9 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, SmallAdCa
                         text = TranslateViewModel.srcText,
                         fontSize = 20.sp,
                         color = Color.White,
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 125.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 125.dp)
                     )
 
                     Spacer(
@@ -119,46 +126,57 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, SmallAdCa
                         text = TranslateViewModel.dstText,
                         fontSize = 20.sp,
                         color = Color.White,
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 149.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 149.dp)
                     )
 
-                    CoilImage(modifier = Modifier
-                        .padding(bottom = 16.dp, end = 16.dp)
-                        .align(Alignment.End)
-                        .size(38.dp)
-                        .click {
-                            copyText(TranslateViewModel.dstText)
-                            Toast
-                                .makeText(
-                                    this@TranslateResultActivity,
-                                    "Copied !",
-                                    Toast.LENGTH_SHORT
-                                )
-                                .show()
-                        }, data = R.mipmap.home_copy)
+                    CoilImage(
+                        modifier = Modifier
+                            .padding(bottom = 16.dp, end = 16.dp)
+                            .align(Alignment.End)
+                            .size(38.dp)
+                            .click {
+                                copyText(TranslateViewModel.dstText)
+
+                            }, data = R.mipmap.home_copy
+                    )
                 }
 
-                Row(modifier = Modifier
-                    .padding(top = 20.dp)
-                    .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                Row(
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                        .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround
+                ) {
                     Box {
-                        CoilImage(modifier = Modifier
-                            .size(155.dp, 128.dp)
-                            .click {
-                                start()
-                            }, data = R.mipmap.home_album)
-                        Text(text = "Album", fontSize = 18.sp,modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .align(Alignment.BottomCenter))
+                        CoilImage(
+                            modifier = Modifier
+                                .size(155.dp, 128.dp)
+                                .click {
+                                    start()
+                                }, data = R.mipmap.home_album
+                        )
+                        Text(
+                            text = "Album", fontSize = 18.sp, modifier = Modifier
+                                .padding(bottom = 16.dp)
+                                .align(Alignment.BottomCenter)
+                        )
                     }
                     Box {
-                        CoilImage(modifier = Modifier
-                            .size(155.dp, 128.dp)
-                            .click {
-                                navActivity<CaptureActivity>()
-                            }, data = R.mipmap.home_camera
+                        CoilImage(
+                            modifier = Modifier
+                                .size(155.dp, 128.dp)
+                                .click {
+                                    navActivity<CaptureActivity>()
+                                }, data = R.mipmap.home_camera
                         )
-                        Text(text = "Camera", fontSize = 18.sp,modifier = Modifier.padding(bottom = 16.dp).align(Alignment.BottomCenter))
+                        Text(
+                            text = "Camera",
+                            fontSize = 18.sp,
+                            modifier = Modifier
+                                .padding(bottom = 16.dp)
+                                .align(Alignment.BottomCenter)
+                        )
                     }
                 }
             }
@@ -188,13 +206,13 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, SmallAdCa
         super.onStart()
         if (App.isBackground.not()) {
             AdManager.setSmallCallBack(this, Const.AdConst.AD_TEXT)
-            AdManager.getAdInstanceFromPool(Const.AdConst.AD_TEXT)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
         }
     }
 
-    var adObj= mutableStateOf<AdWrapper?>(null)
+    var adWrapper= mutableStateOf<AdWrapper?>(null)
     override fun getSmallFromPool(adWrapper: AdWrapper) {
-        adObj.value=adWrapper
+        this.adWrapper.value=adWrapper
     }
 
     /**
@@ -206,6 +224,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, SmallAdCa
         val clipboardManager = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
+        Toast.makeText(this@TranslateResultActivity, "Copied !", Toast.LENGTH_SHORT).show()
     }
 
     override fun changeLanguage(sourceLanguage: String, targetLanguage: String) {

@@ -61,7 +61,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -69,12 +69,16 @@ android {
             )
         }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            ndk{
+                abiFilters.add("arm64-v8a")
+                abiFilters.add("armeabi-v7a")
+            }
         }
     }
     compileOptions {
@@ -103,6 +107,7 @@ android {
             setDimension("config")
         }
     }
+    android.buildTypes.getByName("release").ndk.debugSymbolLevel = "NONE"
 }
 
 dependencies {
@@ -156,13 +161,7 @@ dependencies {
 
     // To recognize Latin script
     implementation("com.google.mlkit:text-recognition:16.0.0")
-    // To recognize Chinese script
-    implementation("com.google.mlkit:text-recognition-chinese:16.0.0")
     // To recognize Devanagari script
     implementation("com.google.mlkit:text-recognition-devanagari:16.0.0")
-    // To recognize Japanese script
-    implementation("com.google.mlkit:text-recognition-japanese:16.0.0")
-    // To recognize Korean script
-    implementation("com.google.mlkit:text-recognition-korean:16.0.0")
 
 }

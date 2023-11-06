@@ -6,14 +6,18 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.edit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.translate.app.App
+import com.translate.app.Const
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
 import com.translate.app.repository.bean.ConfigBean
 import com.translate.app.repository.bean.LanguageBeanItem
 import com.translate.app.ui.ImagePickerActivity
+import com.translate.app.ui.weight.getSpByTag
+import com.translate.app.ui.weight.saveSP
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,6 +42,12 @@ object Repository {
             recentLanguageList.removeLast()
         }
         recentLanguageList.add(0,languageBeanItem)
+
+
+        val json = Gson().toJson(recentLanguageList)
+        sharedPreferences.edit {
+            putString(Const.RECENT_LANGUAGE,json)
+        }
     }
 
     suspend fun parseLanguageJson() = withContext(Dispatchers.IO){
@@ -46,18 +56,39 @@ object Repository {
                 val json = it.readBytes().decodeToString()
                 val result = Gson().fromJson<List<LanguageBeanItem>>(json, object : TypeToken<List<LanguageBeanItem>>() {}.type)
                 allLanguageList.addAll(result)
-                val default = allLanguageList.filter { (it.languageEn.contains("English") || it.languageEn.contains("Hindi") || it.languageEn.contains("Portuguese") || it.languageEn.contains("Spanish")) }
-                default.forEach {
-                    setRecentLanguage(it)
-                    if (it.languageEn.contains("English")){
+
+                val recentJson = sharedPreferences.getString(Const.RECENT_LANGUAGE,"") ?: ""
+
+                if (recentJson.isEmpty()) {
+                    val default = allLanguageList.filter { (it.languageEn.contains("English") || it.languageEn.contains("Hindi") || it.languageEn.contains("Portuguese") || it.languageEn.contains("Spanish")) }
+                    default.forEach {
+                        setRecentLanguage(it)
+                        if (it.languageEn.contains("English")){
+                            it.saveSP(Const.SOURCE_LANGUAGE)
+                            sourceLanguage = it
+                            ImagePickerActivity.setSourceLanguageMethod(it.languageEn)
+                        }
+                        if (it.languageEn.contains("Hindi")){
+                            it.saveSP(Const.TARGET_LANGUAGE)
+                            targetLanguage = it
+                            ImagePickerActivity.setTargetLanguageMethod(it.languageEn)
+                        }
+                    }
+                }else{
+                    val default = Gson().fromJson<List<LanguageBeanItem>>(recentJson, object : TypeToken<List<LanguageBeanItem>>() {}.type)
+                    default.forEach{
+                        setRecentLanguage(it)
+                    }
+                    Const.SOURCE_LANGUAGE.getSpByTag<LanguageBeanItem>()?.let {
                         sourceLanguage = it
                         ImagePickerActivity.setSourceLanguageMethod(it.languageEn)
                     }
-                    if (it.languageEn.contains("Hindi")){
+                    Const.TARGET_LANGUAGE.getSpByTag<LanguageBeanItem>()?.let {
                         targetLanguage = it
                         ImagePickerActivity.setTargetLanguageMethod(it.languageEn)
                     }
                 }
+
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -66,6 +97,9 @@ object Repository {
 
 
     fun getSearchResult(searchStr: String): List<LanguageBeanItem> {
+        if (searchStr.isEmpty()) {
+            return emptyList()
+        }
         return allLanguageList.filter { it.languageEn.contains(searchStr, true) }
     }
 

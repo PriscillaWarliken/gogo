@@ -23,29 +23,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
+import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ads.callback.FullAdCallback
-import com.translate.app.ads.getTodayTime
+import com.translate.app.ads.callback.SmallAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.ui.weight.CoilImage
+import com.translate.app.ui.weight.NativeAdsView
 import kotlinx.coroutines.delay
 
-class StartActivity : BaseActivity(), FullAdCallback {
+class StartActivity : BaseActivity(), FullAdCallback,SmallAdCallback {
 
     private var launchTime = 10
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (Repository.sharedPreferences.getLong(Const.USE_APP_TIME, 0L) < getTodayTime()) {
-            //重置今天使用翻译次数次数
-            Repository.sharedPreferences.edit {
-                putInt(Const.TRANSLATE_COUNT,0)
-            }
-        }
 
         Repository.sharedPreferences.edit { putLong(Const.USE_APP_TIME,System.currentTimeMillis()) }
         if (Repository.sharedPreferences.getBoolean(Const.PRIVACY_AGREE,true)) {
@@ -56,6 +51,15 @@ class StartActivity : BaseActivity(), FullAdCallback {
         setContent {
             BackHandler(enabled = true) {}
             Box(modifier = Modifier.fillMaxSize()){
+                adWrapper.value?.let {
+                    NativeAdsView(
+                        isBig = false,
+                        adWrapper = it, modifier = Modifier
+                            .padding(top = 40.dp)
+                            .padding(horizontal = 20.dp)
+                            .align(Alignment.TopCenter)
+                    )
+                }
                 CoilImage(
                     modifier = Modifier
                         .align(Alignment.Center)
@@ -85,14 +89,28 @@ class StartActivity : BaseActivity(), FullAdCallback {
         }catch (_:Exception){}
     }
 
-    private fun showOpenAd() {
-        if (true) {
-            AdManager.setFullCallBack(this)
-            AdManager.getAdInstanceFromPool(Const.AdConst.AD_START)
-        }else{
-            navActivity<MainActivity>()
-            finish()
+    override fun onStart() {
+        super.onStart()
+        if (App.isBackground.not()) {
+            AdManager.setSmallCallBack(this, Const.AdConst.AD_INITIAL)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_INITIAL)
         }
+        AdManager.clearSmallCallBack()
+    }
+
+    var adWrapper= mutableStateOf<AdWrapper?>(null)
+    override fun getSmallFromPool(adWrapper: AdWrapper) {
+        this.adWrapper.value=adWrapper
+    }
+
+    override fun onStop() {
+        super.onStop()
+        AdManager.skipLiveData.removeObservers(this)
+    }
+
+    private fun showOpenAd() {
+        AdManager.setFullCallBack(this)
+        AdManager.getAdObjFromPool(Const.AdConst.AD_START)
     }
 
     override fun getFullFromPool(adWrapper: AdWrapper?) {
@@ -108,36 +126,38 @@ class StartActivity : BaseActivity(), FullAdCallback {
         navActivity<MainActivity>()
         finish()
     }
-}
 
-@Composable
-private fun ProgressView(modifier:Modifier,duration:Int,block:()->Unit) {
-    var progressLinear by remember {
-        mutableStateOf(0.00f)
-    }
-
-    LaunchedEffect(Unit){
-        for (i in 0..100) {
-            progressLinear += 0.01f
-            delay(duration * 10L)
+    @Composable
+    private fun ProgressView(modifier:Modifier,duration:Int,block:()->Unit) {
+        var progressLinear by remember {
+            mutableStateOf(0.00f)
         }
-        block.invoke()
-    }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        LinearProgressIndicator(
-            progress = progressLinear,
-            trackColor = Color(0xFFEEEFEF),
-            color = Color(0xFF6ACAFF),
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(15.dp)
-                .clip(shape = RoundedCornerShape(90.dp))
-        )
+        LaunchedEffect(Unit){
+            for (i in 0..100) {
+                progressLinear += 0.01f
+                delay(launchTime * 10L)
+            }
+            block.invoke()
+        }
+
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LinearProgressIndicator(
+                progress = progressLinear,
+                trackColor = Color(0xFFEEEFEF),
+                color = Color(0xFF6ACAFF),
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .height(15.dp)
+                    .clip(shape = RoundedCornerShape(90.dp))
+            )
+        }
     }
 }
+
+
 
 

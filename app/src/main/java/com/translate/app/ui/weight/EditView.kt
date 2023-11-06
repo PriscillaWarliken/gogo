@@ -172,6 +172,7 @@ fun CommentEditView(
         colors = TextFieldDefaults.textFieldColors(
             textColor = Color.White,
             containerColor = Color(0xFF4974C9),
+            cursorColor = Color.White,
             focusedIndicatorColor = Color.Transparent, // 有焦点时的颜色，透明
             unfocusedIndicatorColor = Color.Transparent, // 无焦点时的颜色，绿色
         ),

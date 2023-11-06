@@ -33,8 +33,15 @@ import com.nguyenhoanglam.imagepicker.ui.imagepicker.FolderFragment
 import com.nguyenhoanglam.imagepicker.ui.imagepicker.ImageFragment
 import com.nguyenhoanglam.imagepicker.ui.imagepicker.ImagePickerViewModel
 import com.nguyenhoanglam.imagepicker.ui.imagepicker.ImagePickerViewModelFactory
+import com.translate.app.App
+import com.translate.app.Const
+import com.translate.app.ads.AdManager
+import com.translate.app.ads.base.AdWrapper
+import com.translate.app.ads.callback.SmallAdCallback
+import com.translate.app.ui.languagePage.LanguageActivity
 
-class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageSelectListener {
+class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageSelectListener,
+    SmallAdCallback {
 
     companion object{
         var sourceLanguage = ""
@@ -171,9 +178,11 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
         }
 
         binding.sourceLanguage.setOnClickListener {
+            LanguageActivity.sourceSelectState = true
             startActivity(Intent(this,config.clazz))
         }
         binding.targetLanguage.setOnClickListener {
+            LanguageActivity.sourceSelectState = false
             startActivity(Intent(this,config.clazz))
         }
 
@@ -403,5 +412,17 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
 
     override fun onSingleModeImageSelected(image: Image) {
         finishPickImages(ImageHelper.singleListFromImage(image))
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (App.isBackground.not()) {
+            AdManager.setSmallCallBack(this, Const.AdConst.AD_OTHER)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_OTHER)
+        }
+    }
+
+    override fun getSmallFromPool(adWrapper: AdWrapper) {
+        adWrapper.showAdInstance(this,binding.adLayout,false)
     }
 }

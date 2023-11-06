@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -19,6 +20,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,16 +50,18 @@ import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
 import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ads.callback.FullAdCallback
+import com.translate.app.ads.callback.SmallAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.repository.ServiceCreator
 import com.translate.app.repository.bean.Data
 import com.translate.app.ui.BaseActivity
-import com.translate.app.ui.MainActivity
 import com.translate.app.ui.weight.CoilImage
+import com.translate.app.ui.weight.NativeAdsView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -64,12 +69,14 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import kotlin.coroutines.resume
+import kotlin.math.sqrt
 
 
-class OCRActivity : BaseActivity(),FullAdCallback {
+class OCRActivity : BaseActivity(),FullAdCallback,SmallAdCallback {
 
     companion object{
         var resultBitmap: Bitmap? = null
+        var resultStr:String = ""
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,6 +88,7 @@ class OCRActivity : BaseActivity(),FullAdCallback {
             path = "content://media${path}"
         }
         setContent {
+            BackHandler (enabled = true){}
             Box(modifier = Modifier.fillMaxSize()){
                 PreViewImageLayout(
                     path, modifier = Modifier
@@ -90,8 +98,37 @@ class OCRActivity : BaseActivity(),FullAdCallback {
                         .background(
                             color = Color.White,
                             shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                        ),
+                    bottomView = {
+                        val animateValue by rememberInfiniteTransition(label = "").animateFloat(
+                            initialValue = 0f,
+                            targetValue = 1f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(durationMillis = 1000, easing = LinearEasing),
+                                repeatMode = RepeatMode.Restart
+                            ), label = ""
                         )
-                )
+                        Box(modifier = Modifier
+                            .padding(bottom = 50.dp)
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth(0.9f)
+                            .height(15.dp)
+                            .background(
+                                color = Color(0xFFEEEFEF),
+                                shape = RoundedCornerShape(90.dp)
+                            )
+                        ){
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth(animateValue)
+                                    .fillMaxHeight()
+                                    .background(
+                                        color = Color(0xFF6ACAFF),
+                                        shape = RoundedCornerShape(90.dp)
+                                    )
+                            )
+                        }
+                    })
                 val composition by rememberLottieComposition(LottieCompositionSpec.Asset("anim/扫描.json"))
                 LottieAnimation(
                     composition = composition,
@@ -101,30 +138,13 @@ class OCRActivity : BaseActivity(),FullAdCallback {
                         .align(Alignment.BottomCenter),
                     contentScale = ContentScale.None
                 )
-                
-                val animateValue by rememberInfiniteTransition(label = "").animateFloat(
-                    initialValue = 0f,
-                    targetValue = 1f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 1000, easing = LinearEasing),
-                        repeatMode = RepeatMode.Restart
-                    ), label = ""
-                )
-                Box(modifier = Modifier
-                    .padding(bottom = 50.dp)
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth(0.9f)
-                    .height(15.dp)
-                    .background(color = Color(0xFFEEEFEF), shape = RoundedCornerShape(90.dp))
-                ){
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth(animateValue)
-                            .fillMaxHeight()
-                            .background(
-                                color = Color(0xFF6ACAFF),
-                                shape = RoundedCornerShape(90.dp)
-                            )
+
+                adWrapper.value?.let {
+                    NativeAdsView(
+                        isBig = false, adWrapper = it, modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 50.dp)
+                            .padding(horizontal = 20.dp)
                     )
                 }
             }
@@ -132,20 +152,13 @@ class OCRActivity : BaseActivity(),FullAdCallback {
         startRecognizer(path)
     }
     private fun startRecognizer(path: String) {
+        val startTime = System.currentTimeMillis()
         val recognizer = when (Repository.sourceLanguage!!.language) {
-            "zh-CN","zh-TW" -> {
-                TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
-            }
             "hi"->{
                 TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
             }
-            "ja"->{
-                TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
-            }
-            "ko"->{
-                TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
-            }else->{
-            TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+          else->{
+              TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
             }
         }
         val image: InputImage
@@ -166,6 +179,10 @@ class OCRActivity : BaseActivity(),FullAdCallback {
                     // Task completed successfully
                     lifecycleScope.launch {
                         if (result.textBlocks.isNullOrEmpty()) {
+                            val differTime = System.currentTimeMillis() - startTime
+                            if (differTime < 3000L) {
+                                delay(3000L - differTime)
+                            }
                             resultBitmap = bmp
                             navActivity<ResultActivity>()
                             finish()
@@ -189,17 +206,30 @@ class OCRActivity : BaseActivity(),FullAdCallback {
                             )
                         }
                         resultBitmap = bmp
+                        parseResultString(resultArr)
                         showIntAd()
                     }
 
                 }
                 .addOnFailureListener { e ->
-                    resultBitmap = bmp
-                    navActivity<ResultActivity>()
-                    finish()
+                    lifecycleScope.launch {
+                        resultBitmap = bmp
+                        val differTime = System.currentTimeMillis() - startTime
+                        if (differTime < 3000L) {
+                            delay(3000L - differTime)
+                        }
+                        navActivity<ResultActivity>()
+                        finish()
+                    }
                 }
         } catch (e: IOException) {
             e.printStackTrace()
+        }
+    }
+
+    private fun parseResultString(resultArr: List<Data>?) {
+        resultArr?.forEach {
+            resultStr += "${it.dst}\n"
         }
     }
 
@@ -261,7 +291,7 @@ class OCRActivity : BaseActivity(),FullAdCallback {
             }
 
             val textPaint = TextPaint()
-            textPaint.textSize = calculateTextSizeToFitRect(afterTT,rect,textPaint)
+            textPaint.textSize = calculateTextSizeToFitRect(afterTT,rect)
             textPaint.isAntiAlias = true
             textPaint.bgColor = android.graphics.Color.WHITE
             val drawTextWidth = if (rect.width() >= rect.height()) rect.width() else rect.height()
@@ -276,6 +306,8 @@ class OCRActivity : BaseActivity(),FullAdCallback {
             )
             canvas.save()
 
+
+            //高度根据翻译后的文本高度
             val maxHeight = if (layout.height >= rect.height()) {
                 rect.top + layout.height
             }else{
@@ -294,20 +326,15 @@ class OCRActivity : BaseActivity(),FullAdCallback {
         }
     }
 
-    private fun calculateTextSizeToFitRect(text: String, rect: Rect, textPaint: Paint): Float {
-        val targetWidth = rect.width().toFloat()
-        val targetHeight = rect.height().toFloat()
-
-        val textBounds = Rect()
-        var textSize = 100f // 初始文本大小，可以根据实际情况进行调整
-        textPaint.textSize = textSize
-        textPaint.getTextBounds(text, 0, text.length, textBounds)
-
-        while (textBounds.width() > targetWidth || textBounds.height() > targetHeight) {
-            textSize -= 2f // 减小文本大小，可以根据需要调整调整步长
-            textPaint.textSize = textSize
-            textPaint.getTextBounds(text, 0, text.length, textBounds)
+    private fun calculateTextSizeToFitRect(text: String, rect: Rect): Float {
+        if (text.isEmpty()) {
+            return 70f
         }
+        var textSize = 10000f // 初始文本大小，可以根据实际情况进行调整
+        val space = rect.width() * rect.height()
+        val leng = space/text.length
+
+        textSize = sqrt(leng.toFloat())
 
         return textSize
     }
@@ -331,7 +358,7 @@ class OCRActivity : BaseActivity(),FullAdCallback {
 
     private fun showIntAd() {
         AdManager.setFullCallBack(this)
-        AdManager.getAdInstanceFromPool(Const.AdConst.AD_INSERT)
+        AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
     }
 
     override fun getFullFromPool(adWrapper: AdWrapper?) {
@@ -347,22 +374,42 @@ class OCRActivity : BaseActivity(),FullAdCallback {
         navActivity<ResultActivity>()
         finish()
     }
+
+
+    override fun onStart() {
+        super.onStart()
+        if (App.isBackground.not()) {
+            AdManager.setSmallCallBack(this, Const.AdConst.AD_TEXT)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
+        }
+    }
+
+    var adWrapper= mutableStateOf<AdWrapper?>(null)
+    override fun getSmallFromPool(adWrapper: AdWrapper) {
+        this.adWrapper.value=adWrapper
+    }
 }
 
 @Composable
 fun PreViewImageLayout(
     path: Any,
     modifier: Modifier,
+    bottomView:@Composable ()->Unit={},
+    shareView:@Composable ()->Unit={},
 ) {
-    Box(modifier = modifier) {
-        CoilImage(
-            data = path,
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
             modifier = Modifier
-                .padding(top = 21.dp)
-                .align(Alignment.TopCenter)
+                .padding(top = 21.dp, bottom = 20.dp)
                 .fillMaxWidth(0.9f)
                 .height(460.dp)
-        )
-
+        ){
+            CoilImage(
+                data = path,
+                modifier = Modifier.fillMaxSize()
+            )
+            shareView()
+        }
+        bottomView()
     }
 }

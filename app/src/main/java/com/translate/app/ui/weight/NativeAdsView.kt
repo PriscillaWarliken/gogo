@@ -23,7 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdView
 import com.translate.app.ads.base.AdWrapper
+import com.translate.app.ads.base.NavAd
 import kotlinx.coroutines.launch
 
 @Composable
@@ -43,6 +46,44 @@ fun NativeAdsView(isBig:Boolean = true,adWrapper: AdWrapper, modifier: Modifier)
             if (!isFirst) {
                 scope.launch {
                     adWrapper.showAdInstance(context,it,isBig)
+                    view.post {
+                        view.requestLayout()
+                    }
+                }
+            } else {
+                isFirst = false
+            }
+        }, modifier = Modifier
+            .fillMaxWidth())
+        LaunchedEffect(key1 = lifecycleOwner) {
+            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                recompose.invalidate()
+            }
+        }
+    }
+}
+
+@Composable
+fun NativeAdsView(isBig:Boolean = true,mAdInstance: NativeAd, modifier: Modifier) {
+    val context = LocalContext.current as Activity
+    val scope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val recompose = currentRecomposeScope
+    var isFirst by remember {
+        mutableStateOf(true)
+    }
+    val view=LocalView.current
+    Box(modifier = modifier) {
+        AndroidView(factory = {
+            FrameLayout(it)
+        }, update = {
+            if (!isFirst) {
+                scope.launch {
+                    if (isBig) {
+                        NavAd.fillNavMaterial(context,it, mAdInstance)
+                    }else{
+                        NavAd.fitSmallNavMaterial(context, it, mAdInstance)
+                    }
                     view.post {
                         view.requestLayout()
                     }

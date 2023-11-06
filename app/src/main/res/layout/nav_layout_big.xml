@@ -76,7 +76,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintWidth_percent="0.95"
-            android:background="@drawable/big_ad_install"/>
+            android:background="@drawable/ad_install"/>
 
         <TextView
             android:id="@+id/tag_tv"

@@ -126,6 +126,7 @@ fun SearchEditView(
             TextContent(hintText,color = Color(0x4DFFFFFF))
         },
         colors = TextFieldDefaults.textFieldColors(
+            cursorColor = Color.White,
             textColor = Color.White,
             containerColor = Color(0xFF58B9EE),
             focusedIndicatorColor = Color.White, // 有焦点时的颜色，透明
