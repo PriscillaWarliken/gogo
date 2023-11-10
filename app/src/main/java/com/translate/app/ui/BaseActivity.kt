@@ -14,13 +14,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.android.gms.ads.nativead.NativeAd
 import com.translate.app.R
 import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ui.weight.CoilImage
 
 open class BaseActivity : ComponentActivity() {
 
-    protected var adWrapper= mutableStateOf<AdWrapper?>(null)
+    protected var adWrapper= mutableStateOf<NativeAd?>(null)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)

@@ -24,7 +24,7 @@ object Const {
             const val AD_INSERT = "insert"
             const val CLICK_TIME = "CLICK_TIME"
             const val CLICK_COUNT = "CLICK_COUNT"
-            const val canLoadNav = "canLoadNav"
+            const val permissionNav = "canLoadNav"
         }
     }
 
@@ -34,6 +34,8 @@ object Const {
     const val PRIVACY_AGREE = "PRIVACY_AGREE"
     const val USE_APP_TIME = "USE_APP_TIME"
     const val TRANSLATE_COUNT = "TRANSLATE_COUNT"
+    const val START_EXPORT = "START_EXPORT"
+    const val HOME_EXPORT = "HOME_EXPORT"
 
     val pName: String get() = App.context.packageName
 

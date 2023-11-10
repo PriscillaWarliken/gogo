@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.placeholder.material.placeholder
 import com.translate.app.R
+import com.translate.app.ui.pointLog
 import com.translate.app.ui.theme.grey1
 import kotlinx.coroutines.delay
 
@@ -95,6 +96,7 @@ fun TranslateEditView(
                 CoilImage(modifier = Modifier
                     .size(38.dp)
                     .click {
+                        pointLog("paste_And","文本输入无数据点击粘贴")
                         val clipData = clipboard!!.primaryClip
                         if (clipData != null && clipData.itemCount > 0) {
                             val text = clipData.getItemAt(0).text
@@ -116,6 +118,7 @@ fun TranslateEditView(
                 modifier = Modifier
                     .click {
                         onNext(textContent)
+                        pointLog("clicktranslate_And","文本输入有数据点击翻译按钮")
                     }
                     .padding(bottom = 22.dp)
                     .align(Alignment.BottomCenter)

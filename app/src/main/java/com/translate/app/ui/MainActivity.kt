@@ -36,6 +36,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.android.gms.ads.nativead.NativeAd
 import com.nguyenhoanglam.imagepicker.model.CustomColor
 import com.nguyenhoanglam.imagepicker.model.CustomMessage
 import com.nguyenhoanglam.imagepicker.model.GridCount
@@ -90,6 +91,10 @@ class MainActivity : BaseActivity(),NavAdCallback,IntAdCallback {
                 putInt(Const.TRANSLATE_COUNT,0)
             }
         }
+        if (Repository.sharedPreferences.getBoolean(Const.HOME_EXPORT, true)) {
+            pointLog("Home_And","首页曝光")
+            Repository.sharedPreferences.edit { putBoolean(Const.HOME_EXPORT,false) }
+        }
         setContent {
             BackHandler(enabled = true) {}
             Box(modifier = Modifier
@@ -139,7 +144,7 @@ class MainActivity : BaseActivity(),NavAdCallback,IntAdCallback {
 
                     adWrapper.value?.let {
                         NativeAdsView(
-                            adWrapper = it, modifier = Modifier
+                            mAdInstance = it, modifier = Modifier
                                 .padding(top = 20.dp)
                                 .padding(horizontal = 20.dp)
                         )
@@ -284,18 +289,20 @@ class MainActivity : BaseActivity(),NavAdCallback,IntAdCallback {
     override fun onStart() {
         super.onStart()
         if (App.isBackground.not()) {
-            AdManager.setSmallCallBack(this, Const.AdConst.AD_TEXT)
+            AdManager.setNativeCallBack(this, Const.AdConst.AD_TEXT)
             AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
         }
     }
 
+
+
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
-        this.adWrapper.value=adWrapper
+        this.adWrapper.value = adWrapper.getAdInstance() as NativeAd
     }
 
 
     private fun showIntAd() {
-        AdManager.setFullCallBack(this)
+        AdManager.setIntAdCallBack(this)
         AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
     }
 
@@ -399,7 +406,7 @@ fun TopBar() {
                     maxLines = 1,modifier = Modifier.widthIn(max = 60.dp))
                 CoilImage(
                     modifier = Modifier
-                        .padding(end = 2.dp)
+                        .padding(start = 2.dp)
                         .size(11.dp, 6.dp),
                     data = R.mipmap.home_pulldown
                 )

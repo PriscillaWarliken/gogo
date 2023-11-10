@@ -1,6 +1,10 @@
 package com.translate.app.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
+import com.google.firebase.analytics.logEvent
+import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.repository.Repository
@@ -28,6 +36,7 @@ class PrivacyActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pointLog("Privacy_And","隐私征求页曝光")
         setContent {
             Column(
                 modifier = Modifier
@@ -64,25 +73,29 @@ class PrivacyActivity : BaseActivity() {
                     textAlign = TextAlign.Center,
                 )
 
-                Box(
-                    modifier = Modifier
-                        .click {
-                            Repository.sharedPreferences.edit {
-                                putBoolean(Const.PRIVACY_AGREE,false)
-                            }
-                            navActivity<StartActivity>()
-                            finish()
+                Button(
+                    onClick = {
+                        pointLog("Start_And","隐私征求页点击Start")
+                        Repository.sharedPreferences.edit {
+                            putBoolean(Const.PRIVACY_AGREE,false)
                         }
+                        navActivity<StartActivity>()
+                        finish()
+                    }, modifier = Modifier
                         .padding(top = 40.dp)
-                        .size(310.dp, 60.dp)
-                        .background(color = Color(0xFF6ACAFF), shape = RoundedCornerShape(12.dp))
+                        .size(310.dp, 60.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6ACAFF))
                 ) {
-                    Text(text = "Start",color = Color.White, fontSize = 24.sp,modifier = Modifier.align(Alignment.Center))
+                    Text(text = "Start",color = Color.White, fontSize = 24.sp,modifier = Modifier)
                 }
             }
         }
     }
-    
-    
-    
+
+}
+
+fun pointLog(pointEvent:String,des:String) {
+    App.firebaseAnalytics.logEvent(pointEvent){}
+    Log.d("pointLog", des)
 }

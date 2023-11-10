@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,11 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.android.gms.ads.nativead.NativeAd
 import com.google.gson.JsonArray
 import com.translate.app.App
 import com.translate.app.Const
@@ -34,6 +37,7 @@ import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.TopBar
+import com.translate.app.ui.pointLog
 import com.translate.app.ui.weight.NativeAdsView
 import com.translate.app.ui.weight.TranslateEditView
 import com.translate.app.ui.weight.click
@@ -70,6 +74,7 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                             .padding(start = 12.dp, end = 12.dp, top = 20.dp),
                         onNext = { result->
                             showAnimState = true
+                            pointLog("Textanimation_And","文本翻译动效曝光")
                             val arr = JsonArray().apply {
                                 add(result)
                             }
@@ -86,7 +91,7 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                     )
 
                     adWrapper.value?.let {
-                        NativeAdsView(adWrapper = it,modifier = Modifier
+                        NativeAdsView(mAdInstance = it,modifier = Modifier
                             .padding(top = 20.dp)
                             .padding(horizontal = 20.dp))
                     }
@@ -99,20 +104,24 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                     .fillMaxSize()
                     .background(color = Color(0x4D000000))){
                     val composition by rememberLottieComposition(LottieCompositionSpec.Asset("anim/文本翻译中.json"))
-                    LottieAnimation(
-                        composition = composition,
-                        iterations = LottieConstants.IterateForever,
-                        modifier = Modifier
-                            .align(Alignment.Center),
-                        contentScale = ContentScale.None
-                    )
+                    
+                    Column(modifier = Modifier
+                        .align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
+                        LottieAnimation(
+                            composition = composition,
+                            iterations = LottieConstants.IterateForever,
+                            modifier = Modifier,
+                            contentScale = ContentScale.None
+                        )
+                        Text(text = "Translating...", fontSize = 24.sp,color = Color.White)
+                    }
                 }
             }
         }
     }
 
     private fun showIntAd() {
-        AdManager.setFullCallBack(this)
+        AdManager.setIntAdCallBack(this)
         AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
     }
 
@@ -131,13 +140,13 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
     override fun onStart() {
         super.onStart()
         if (App.isBackground.not()) {
-            AdManager.setSmallCallBack(this, Const.AdConst.AD_TEXT)
+            AdManager.setNativeCallBack(this, Const.AdConst.AD_TEXT)
             AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
         }
     }
 
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
-        this.adWrapper.value=adWrapper
+        this.adWrapper.value = adWrapper.getAdInstance() as NativeAd
     }
 
 }

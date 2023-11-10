@@ -3,7 +3,6 @@ package com.translate.app.repository
 import android.util.Base64
 import com.translate.app.App
 import com.translate.app.BuildConfig
-import com.translate.crycore.CryUtil
 import okhttp3.Interceptor
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
@@ -32,7 +31,6 @@ class TInterceptor: Interceptor {
             System.arraycopy(sign, 0, result, 1, sign.size)
             System.arraycopy(data, 0, result, sign.size + 1, data.size)
 
-            data = CryUtil.cry(GZipHandler.zipData(result), CryUtil.MODE_DES_EBC, CryUtil.MODE_BASE)
             val mResponse = chain.proceed(mRequest.newBuilder().apply {
                 addHeader("Content-Type", "application/octet-stream")
                 post(data.toRequestBody(mRequest.body?.contentType(), 0, data.size))
@@ -46,7 +44,6 @@ class TInterceptor: Interceptor {
             mResponse.body?.let {responseBody ->
                 data = responseBody.bytes()
                 if (data.isNotEmpty()) {
-                    data = GZipHandler.unZipData(CryUtil.decry(data, CryUtil.MODE_DES_EBC, CryUtil.MODE_BASE))
                     decryResponse = mResponse.newBuilder().body(data.toResponseBody(responseBody.contentType())).build()
                     return decryResponse
                 }

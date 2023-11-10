@@ -23,6 +23,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
+import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.ads.nativead.NativeAd
 import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.R
@@ -34,6 +36,7 @@ import com.translate.app.repository.Repository
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
 
@@ -48,13 +51,18 @@ class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
             return
         }
 
+        if (Repository.sharedPreferences.getBoolean(Const.START_EXPORT, true)) {
+            pointLog("Open_And","启动页曝光（总的）")
+            Repository.sharedPreferences.edit { putBoolean(Const.START_EXPORT,false) }
+        }
+
         setContent {
             BackHandler(enabled = true) {}
             Box(modifier = Modifier.fillMaxSize()){
                 adWrapper.value?.let {
                     NativeAdsView(
                         isBig = false,
-                        adWrapper = it, modifier = Modifier
+                        mAdInstance = it, modifier = Modifier
                             .padding(top = 40.dp)
                             .padding(horizontal = 20.dp)
                             .align(Alignment.TopCenter)
@@ -76,14 +84,20 @@ class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
             }
         }
 
-        AdManager.loadingAdPool()
+
         try {
-            if (AdManager.skipLiveData.hasActiveObservers()) {
-                return
+            if (AdManager.adMapLiveData.hasActiveObservers().not()) {
+                AdManager.adMapLiveData.observe(this) {
+                    if (it) {
+                        AdManager.loadingAdPool()
+                    }
+                }
             }
-            AdManager.skipLiveData.observe(this){
-                if (it.contains(Const.AdConst.AD_TEXT) && it.contains(Const.AdConst.AD_START)) {
-                    launchTime = 1
+            if (AdManager.skipLiveData.hasActiveObservers().not()) {
+                AdManager.skipLiveData.observe(this){
+                    if (it.contains(Const.AdConst.AD_TEXT) && it.contains(Const.AdConst.AD_START)) {
+                        launchTime = 1
+                    }
                 }
             }
         }catch (_:Exception){}
@@ -92,24 +106,25 @@ class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
     override fun onStart() {
         super.onStart()
         if (App.isBackground.not()) {
-            AdManager.setSmallCallBack(this, Const.AdConst.AD_INITIAL)
+            AdManager.setNativeCallBack(this, Const.AdConst.AD_INITIAL)
             AdManager.getAdObjFromPool(Const.AdConst.AD_INITIAL)
         }
-        AdManager.clearSmallCallBack()
+        AdManager.clearNativeCallBack()
     }
 
 
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
-        this.adWrapper.value=adWrapper
+        this.adWrapper.value = adWrapper.getAdInstance() as NativeAd
     }
 
     override fun onStop() {
         super.onStop()
         AdManager.skipLiveData.removeObservers(this)
+        AdManager.adMapLiveData.removeObservers(this)
     }
 
     private fun showOpenAd() {
-        AdManager.setFullCallBack(this)
+        AdManager.setIntAdCallBack(this)
         AdManager.getAdObjFromPool(Const.AdConst.AD_START)
     }
 

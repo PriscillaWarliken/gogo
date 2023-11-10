@@ -7,28 +7,16 @@ import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.util.Rational
-import androidx.camera.camera2.Camera2Config
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraXConfig
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.Preview
-import androidx.camera.core.UseCaseGroup
-import androidx.camera.core.ViewPort
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.translate.app.repository.Repository
 import com.translate.app.ui.StartActivity
-import com.translate.crycore.CryUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class App : Application(),ActivityLifecycleCallbacks {
 
@@ -36,15 +24,23 @@ class App : Application(),ActivityLifecycleCallbacks {
         @SuppressLint("StaticFieldLeak")
         lateinit var context:Context
         var isBackground = false
+        lateinit var firebaseAnalytics:FirebaseAnalytics
         val coroutineScope by lazy { CoroutineScope(Dispatchers.IO + SupervisorJob()) }
     }
 
     override fun onCreate() {
         super.onCreate()
         context = this
+        firebaseAnalytics = Firebase.analytics
         registerActivityLifecycleCallbacks(this)
         Repository.init()
         coroutineScope.launch {
+            launch {
+                try {
+                    val gid = AdvertisingIdClient.getAdvertisingIdInfo(context).id.toString()
+                    Const.baseParam.addProperty("advertNum",gid)
+                } catch (_: Exception) { }
+            }
             launch { Repository.useCacheConfig() }
             launch { Repository.parseLanguageJson() }
         }

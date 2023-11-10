@@ -41,6 +41,7 @@ import com.translate.app.repository.Repository
 import com.translate.app.repository.bean.LanguageBeanItem
 import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.ImagePickerActivity
+import com.translate.app.ui.pointLog
 import com.translate.app.ui.theme.grey
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
@@ -64,6 +65,8 @@ class LanguageActivity : BaseActivity(),NavAdCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pointLog("Language_And","语言切换页曝光（源语言和目标语言都算）")
+
         setContent {
             val focusManager = LocalFocusManager.current
             val scrollState = rememberScrollState()
@@ -280,7 +283,7 @@ class LanguageActivity : BaseActivity(),NavAdCallback {
     override fun onStart() {
         super.onStart()
         if (App.isBackground.not()) {
-            AdManager.setSmallCallBack(this, Const.AdConst.AD_TEXT)
+            AdManager.setNativeCallBack(this, Const.AdConst.AD_TEXT)
             AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
         }
     }

@@ -27,13 +27,14 @@ object AdManager {
     val smallPoolPool = ConcurrentLinkedQueue<AdWrapper>()
     val fullPoolPool = ConcurrentLinkedQueue<AdWrapper>()
 
-    private var smallCallMap = mutableMapOf<String, NavAdCallback>()
+    private var nativeAdCallMap = mutableMapOf<String, NavAdCallback>()
 
-    private lateinit var mFullCallBack: IntAdCallback
+    private lateinit var intAdCallBack: IntAdCallback
 
     var skipTag = mutableListOf<String>()
     var skipLiveData = MutableLiveData<MutableList<String>>()
 
+    var adMapLiveData = MutableLiveData(false)
     var needShowNav:Boolean = false
     private var permissionNav: Boolean = true
     private var navClickCount:Int = 3
@@ -47,19 +48,18 @@ object AdManager {
     private var adRevenue = BuildConfig.adRevenue
     private var adSite = BuildConfig.adSite
 
-
-    fun setFullCallBack(l: IntAdCallback) {
-        this.mFullCallBack = l
+    fun setNativeCallBack(l: NavAdCallback, place: String) {
+        nativeAdCallMap.clear()
+        nativeAdCallMap[place] = l
     }
 
-    fun setSmallCallBack(l: NavAdCallback, place: String) {
-        smallCallMap.clear()
-        smallCallMap[place] = l
-    }
-
-    fun clearSmallCallBack() {
+    fun clearNativeCallBack() {
         needShowNav = false
-        smallCallMap.clear()
+        nativeAdCallMap.clear()
+    }
+
+    fun setIntAdCallBack(l: IntAdCallback) {
+        this.intAdCallBack = l
     }
 
     private fun requestEvent(adWrapper: AdWrapper, place: String) {
@@ -98,6 +98,7 @@ object AdManager {
                 it.value.innerAdList = adMap[it.key]!!.innerAdList
             }
             reloadNavLimit(clickLimit)
+            adMapLiveData.postValue(true)
         }catch (_:Exception){}
     }
 
@@ -105,13 +106,13 @@ object AdManager {
         this.navClickCount = navClickCount
         this.nowClickCount = Repository.sharedPreferences.getInt(Const.AdConst.CLICK_COUNT,0)
         val clickTime = Repository.sharedPreferences.getLong(Const.AdConst.CLICK_TIME, 0L)
-        permissionNav = Repository.sharedPreferences.getBoolean(Const.AdConst.canLoadNav,true)
+        permissionNav = Repository.sharedPreferences.getBoolean(Const.AdConst.permissionNav,true)
 
         if (!permissionNav && getMoringTime() - clickTime >= 1) {
             this.nowClickCount = 0
             permissionNav = true
             Repository.sharedPreferences.edit {
-                putBoolean(Const.AdConst.canLoadNav, true)
+                putBoolean(Const.AdConst.permissionNav, true)
                 putLong(Const.AdConst.CLICK_TIME, 0L)
                 putInt(Const.AdConst.CLICK_COUNT, 0)
             }
@@ -234,7 +235,7 @@ object AdManager {
                 }
 
                 override fun onClose() {
-                    mFullCallBack.onCloseIntAd()
+                    intAdCallBack.onCloseIntAd()
                 }
 
                 override fun onClick() {
@@ -259,10 +260,10 @@ object AdManager {
                     Log.d(TAG,"$place 请求成功 小屏广告缓存池里数量:${smallPoolPool.size}, 权重:${adWrapper.weight}, index:${index},hashCode:" + adInstance.hashCode())
 
                     if (needShowNav && App.isBackground.not()) {
-                        smallCallMap[place]?.let {
+                        nativeAdCallMap[place]?.let {
                             it.getNavAdFromPool(adWrapper)
                             smallPoolPool.remove(adWrapper)
-                            clearSmallCallBack()
+                            clearNativeCallBack()
                         }
                         return
                     }
@@ -288,7 +289,7 @@ object AdManager {
 
                 override fun onShow() {
                     Log.d(TAG,"$place 展示成功 id:${adWrapper.id}, 权重:${adWrapper.weight} hashCode:${adWrapper.getAdInstance().hashCode()}")
-                    clearSmallCallBack()
+                    clearNativeCallBack()
                     loadAdInstance(place)
                 }
 
@@ -304,7 +305,7 @@ object AdManager {
                     }
                     if (nowClickCount >= navClickCount) {
                         permissionNav = false
-                        Repository.sharedPreferences.edit { putBoolean(Const.AdConst.canLoadNav, permissionNav) }
+                        Repository.sharedPreferences.edit { putBoolean(Const.AdConst.permissionNav, permissionNav) }
                     }
 
                 }
@@ -349,7 +350,7 @@ object AdManager {
                 }
 
                 override fun onClose() {
-                    mFullCallBack.onCloseIntAd()
+                    intAdCallBack.onCloseIntAd()
                 }
 
                 override fun onClick() {
@@ -363,14 +364,14 @@ object AdManager {
         try {
             if ((!::mAdConfigMap.isInitialized)) {
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
-                    mFullCallBack.getIntAdFromPool(null)
+                    intAdCallBack.getIntAdFromPool(null)
                 }
                 return
             }
 
             if (mAdConfigMap[adLocation]?.openBtn == false) {
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
-                    mFullCallBack.getIntAdFromPool(null)
+                    intAdCallBack.getIntAdFromPool(null)
                 }
                 return
             }
@@ -378,7 +379,7 @@ object AdManager {
             if (App.isBackground) {
                 Log.d(TAG, "禁止在后台获取广告 ${adLocation}")
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
-                    mFullCallBack.getIntAdFromPool(null)
+                    intAdCallBack.getIntAdFromPool(null)
                 }
                 return
             }
@@ -403,7 +404,7 @@ object AdManager {
             if (!isSmallAdConst) {
                 val sortList = fullPoolPool.sortedByDescending { it.weight }
                 if (sortList.isEmpty()) {
-                    mFullCallBack.getIntAdFromPool(null)
+                    intAdCallBack.getIntAdFromPool(null)
                     return
                 }
                 val lowAdWeight = sortList.last().weight
@@ -413,13 +414,13 @@ object AdManager {
                     }
 
                     if (sortList.size == 1) {
-                        mFullCallBack.getIntAdFromPool(it)
+                        intAdCallBack.getIntAdFromPool(it)
                         fullPoolPool.remove(it)
                         return
                     }
 
                     if (it.weight > lowAdWeight) {
-                        mFullCallBack.getIntAdFromPool(it)
+                        intAdCallBack.getIntAdFromPool(it)
                         fullPoolPool.remove(it)
                         return
                     }
@@ -427,18 +428,18 @@ object AdManager {
 
                 val adWrapper: AdWrapper? = fullPoolPool.find { it.place == adLocation }
                 adWrapper?.let {
-                    mFullCallBack.getIntAdFromPool(it)
+                    intAdCallBack.getIntAdFromPool(it)
                     fullPoolPool.remove(it)
                     return
                 }
-                mFullCallBack.getIntAdFromPool(null)
+                intAdCallBack.getIntAdFromPool(null)
             } else {
                 val sortList = smallPoolPool.sortedByDescending { it.weight }
                 val lowAdWeight = sortList.last().weight
                 sortList.forEach {
                     if (it.weight > lowAdWeight) {
                         smallPoolPool.remove(it)
-                        smallCallMap[adLocation]?.getNavAdFromPool(it)
+                        nativeAdCallMap[adLocation]?.getNavAdFromPool(it)
                         return
                     }
                 }
@@ -446,7 +447,7 @@ object AdManager {
                 val adWrapper: AdWrapper? = smallPoolPool.find { it.place == adLocation }
                 adWrapper?.let {
                     smallPoolPool.remove(it)
-                    smallCallMap[adLocation]?.getNavAdFromPool(it)
+                    nativeAdCallMap[adLocation]?.getNavAdFromPool(it)
                     return
                 }
 

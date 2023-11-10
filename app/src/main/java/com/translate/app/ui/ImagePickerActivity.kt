@@ -39,6 +39,7 @@ import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.ui.languagePage.LanguageActivity
+import com.translate.app.ui.ocrPage.ResultActivity
 
 class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageSelectListener,
     NavAdCallback {
@@ -97,13 +98,14 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
         }
     }
 
-    @Suppress("DEPRECATION")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (intent == null) {
             finish()
             return
         }
+        pointLog("Album_And","相册页曝光")
 
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -383,11 +385,11 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
             ToastHelper.show(this, getString(R.string.imagepicker_error_camera))
             return
         }
-
         resultLauncher.launch(intent)
     }
 
     private fun finishPickImages(images: ArrayList<Image>) {
+        ResultActivity.fromCamera = false
         val data = Intent()
         data.putParcelableArrayListExtra(Constants.EXTRA_IMAGES, images)
         setResult(Activity.RESULT_OK, data)
@@ -417,7 +419,7 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
     override fun onStart() {
         super.onStart()
         if (App.isBackground.not()) {
-            AdManager.setSmallCallBack(this, Const.AdConst.AD_OTHER)
+            AdManager.setNativeCallBack(this, Const.AdConst.AD_OTHER)
             AdManager.getAdObjFromPool(Const.AdConst.AD_OTHER)
         }
     }

@@ -40,6 +40,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.android.gms.ads.nativead.NativeAd
 import com.google.gson.JsonArray
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -56,9 +57,12 @@ import com.translate.app.repository.Repository
 import com.translate.app.repository.ServiceCreator
 import com.translate.app.repository.bean.Data
 import com.translate.app.ui.BaseActivity
+import com.translate.app.ui.pointLog
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -79,6 +83,8 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
         super.onCreate(savedInstanceState)
         resultBitmap = null
         var path = intent.getStringExtra("PATH") ?: return
+
+        pointLog("Cameraanimation_And","照片翻译动效曝光（相机的和相册的是同1个）")
 
         if (path.contains("jpg").not()) {
             path = "content://media${path}"
@@ -137,7 +143,7 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
 
                 adWrapper.value?.let {
                     NativeAdsView(
-                        isBig = false, adWrapper = it, modifier = Modifier
+                        isBig = false, mAdInstance = it, modifier = Modifier
                             .align(Alignment.TopCenter)
                             .padding(top = 50.dp)
                             .padding(horizontal = 20.dp)
@@ -173,7 +179,7 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
             recognizer.process(image)
                 .addOnSuccessListener { result ->
                     // Task completed successfully
-                    lifecycleScope.launch {
+                    lifecycleScope.launch(Dispatchers.IO) {
                         if (result.textBlocks.isNullOrEmpty()) {
                             val differTime = System.currentTimeMillis() - startTime
                             if (differTime < 3000L) {
@@ -201,9 +207,12 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
                                 degress
                             )
                         }
+
                         resultBitmap = bmp
                         parseResultString(resultArr)
-                        showIntAd()
+                        withContext(Dispatchers.Main){
+                            showIntAd()
+                        }
                     }
 
                 }
@@ -287,7 +296,7 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
             }
 
             val textPaint = TextPaint()
-            textPaint.textSize = calculateTextSizeToFitRect(afterTT,rect)
+            textPaint.textSize = 70f //calculateTextSizeToFitRect(afterTT,rect)
             textPaint.isAntiAlias = true
             textPaint.bgColor = android.graphics.Color.WHITE
             val drawTextWidth = if (rect.width() >= rect.height()) rect.width() else rect.height()
@@ -310,12 +319,20 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
                 rect.bottom
             }
 
-            val bgRectF = RectF(rect.left.toFloat(), rect.top.toFloat(), rect.right.toFloat(), maxHeight.toFloat())
-            canvas.drawRect(bgRectF, paint)
+            val bgRectF = RectF(
+                rect.left.toFloat(),
+                rect.top.toFloat(),
+                rect.right.toFloat(),
+                maxHeight.toFloat()
+            )
+
             val pointX = bgRectF.right - bgRectF.width() / 2f
             val pointY = bgRectF.top + (bgRectF.width() / 2f)
+            if (afterTT.isEmpty().not()) {
+                canvas.drawRect(bgRectF, paint)
+            }
             canvas.rotate(angle,pointX,pointY)
-            canvas.translate(bgRectF.left.toFloat(), bgRectF.top.toFloat());
+            canvas.translate(bgRectF.left.toFloat(), bgRectF.top)
             layout.draw(canvas);
             canvas.restore()
             res.resume(true)
@@ -353,7 +370,7 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
     }
 
     private fun showIntAd() {
-        AdManager.setFullCallBack(this)
+        AdManager.setIntAdCallBack(this)
         AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
     }
 
@@ -375,13 +392,13 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
     override fun onStart() {
         super.onStart()
         if (App.isBackground.not()) {
-            AdManager.setSmallCallBack(this, Const.AdConst.AD_TEXT)
+            AdManager.setNativeCallBack(this, Const.AdConst.AD_TEXT)
             AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
         }
     }
 
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
-        this.adWrapper.value=adWrapper
+        this.adWrapper.value = adWrapper.getAdInstance() as NativeAd
     }
 }
 

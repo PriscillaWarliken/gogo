@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.ads.nativead.NativeAd
 import com.nguyenhoanglam.imagepicker.helper.PermissionHelper
 import com.nguyenhoanglam.imagepicker.model.CustomColor
 import com.nguyenhoanglam.imagepicker.model.CustomMessage
@@ -41,6 +42,7 @@ import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.ImagePickerActivity
 import com.translate.app.ui.TopBar
 import com.translate.app.ui.languagePage.LanguageActivity
+import com.translate.app.ui.pointLog
 import com.translate.app.ui.weight.NativeAdsView
 import com.translate.app.ui.weight.PermissDialog
 import com.translate.app.ui.weight.PreViewMainLayout
@@ -122,6 +124,7 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestAllPermission()
+        pointLog("Camera_And","拍照页曝光")
         setContent {
             val lensFacing = remember {
                 mutableStateOf(value = CameraSelector.LENS_FACING_BACK)
@@ -133,7 +136,7 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
                     TopBar()
 
                     adWrapper.value?.let {
-                        NativeAdsView(isBig = false, adWrapper = it,modifier = Modifier
+                        NativeAdsView(isBig = false, mAdInstance = it,modifier = Modifier
                             .padding(top = 20.dp)
                             .padding(horizontal = 20.dp))
                     }
@@ -210,6 +213,7 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
             outputDirectory = getOutputDirectory(),
             executor = Executors.newSingleThreadExecutor(),
             onSuccess = {
+                ResultActivity.fromCamera = true
                 Log.d("TAG_HQL", "takePhoto PATH: ${it.path}")
                 val intent = Intent(this@CaptureActivity, OCRActivity::class.java)
                 intent.putExtra("PATH", "${it.path}")
@@ -260,14 +264,14 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
     override fun onStart() {
         super.onStart()
         if (App.isBackground.not()) {
-            AdManager.setSmallCallBack(this, Const.AdConst.AD_OTHER)
+            AdManager.setNativeCallBack(this, Const.AdConst.AD_OTHER)
             AdManager.getAdObjFromPool(Const.AdConst.AD_OTHER)
         }
     }
 
 
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
-        this.adWrapper.value=adWrapper
+        this.adWrapper.value=adWrapper.getAdInstance() as NativeAd
     }
 
     companion object{

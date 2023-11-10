@@ -39,6 +39,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.android.gms.ads.nativead.NativeAd
 import com.google.gson.JsonArray
 import com.nguyenhoanglam.imagepicker.model.CustomColor
 import com.nguyenhoanglam.imagepicker.model.CustomMessage
@@ -48,11 +49,11 @@ import com.nguyenhoanglam.imagepicker.model.ImagePickerConfig
 import com.nguyenhoanglam.imagepicker.model.IndicatorType
 import com.nguyenhoanglam.imagepicker.model.RootDirectory
 import com.nguyenhoanglam.imagepicker.ui.imagepicker.registerImagePicker
-import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
+import com.translate.app.ads.callback.IntAdCallback
 import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.ui.BaseActivity
@@ -62,19 +63,21 @@ import com.translate.app.ui.languagePage.LanguageActivity
 import com.translate.app.ui.languagePage.LanguageChangeListener
 import com.translate.app.ui.ocrPage.CaptureActivity
 import com.translate.app.ui.ocrPage.OCRActivity
+import com.translate.app.ui.pointLog
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
 import com.translate.app.ui.weight.click
 import kotlinx.coroutines.launch
 
 
-class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCallback {
+class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCallback,IntAdCallback {
 
     val viewModel by viewModels<TranslateViewModel>()
     private var showAnimState by mutableStateOf(value = false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pointLog("Textresults_And","文本翻译结果页曝光")
         LanguageActivity.setLanguageChangeListener(this)
         TranslateViewModel.reusltLiveData.observe(this){
             showAnimState = false
@@ -92,7 +95,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
 
                 adWrapper.value?.let {
                     NativeAdsView(
-                        isBig = false, adWrapper = it, modifier = Modifier
+                        isBig = false, mAdInstance = it, modifier = Modifier
                             .padding(top = 20.dp)
                             .padding(horizontal = 20.dp)
                     )
@@ -195,23 +198,19 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
                             iterations = LottieConstants.IterateForever,
                             contentScale = ContentScale.None
                         )
-                        Text(text = "Translating...",color = Color.White)
+                        Text(text = "Translating...", fontSize = 24.sp,color = Color.White)
                     }
                 }
             }
         }
+
+        AdManager.setNativeCallBack(this, Const.AdConst.AD_TEXT)
+        AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (App.isBackground.not()) {
-            AdManager.setSmallCallBack(this, Const.AdConst.AD_TEXT)
-            AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
-        }
-    }
 
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
-        this.adWrapper.value=adWrapper
+        this.adWrapper.value=adWrapper.getAdInstance() as NativeAd
     }
 
     /**
@@ -237,6 +236,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
                 Repository.sourceLanguage!!.language,
                 Repository.targetLanguage!!.language
             )
+            showIntAd()
         }
 
     }
@@ -311,5 +311,16 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
 
         launcher.launch(config, ImagePickerActivity::class.java)
     }
+
+    private fun showIntAd() {
+        AdManager.setIntAdCallBack(this)
+        AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
+    }
+
+    override fun getIntAdFromPool(adWrapper: AdWrapper?) {
+        adWrapper?.let { it.showAdInstance(this) }
+    }
+
+    override fun onCloseIntAd() {}
 
 }

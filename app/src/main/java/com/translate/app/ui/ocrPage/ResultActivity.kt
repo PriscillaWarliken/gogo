@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.ads.nativead.NativeAd
 import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.R
@@ -34,6 +35,7 @@ import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.MainActivity
+import com.translate.app.ui.pointLog
 import com.translate.app.ui.translatePage.TranslateActivity
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
@@ -43,8 +45,18 @@ import java.util.Calendar
 
 class ResultActivity : BaseActivity(),NavAdCallback {
 
+    companion object{
+        var fromCamera:Boolean = true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (fromCamera) {
+            pointLog("Cameraresults_And","拍照翻译结果页曝光")
+        }else{
+            pointLog("Albumresults _And","照片翻译结果页曝光")
+        }
         setContent {
             Box(modifier = Modifier
                 .statusBarsPadding()
@@ -66,7 +78,7 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                     )
 
                     adWrapper.value?.let {
-                        NativeAdsView(isBig = false, adWrapper = it,modifier = Modifier
+                        NativeAdsView(isBig = false, mAdInstance = it,modifier = Modifier
                             .padding(top = 10.dp))
                     }
                 }
@@ -129,10 +141,12 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                                     .click {
                                         val intent = Intent()
                                         intent.action = Intent.ACTION_SEND
-                                        val uri = Uri.parse(MediaStore.Images.Media.insertImage(
-                                            contentResolver,
-                                            OCRActivity.resultBitmap,
-                                            "IMG" + Calendar.getInstance().time, null)
+                                        val uri = Uri.parse(
+                                            MediaStore.Images.Media.insertImage(
+                                                contentResolver,
+                                                OCRActivity.resultBitmap,
+                                                "IMG" + Calendar.getInstance().time, null
+                                            )
                                         )
                                         intent.type = "image/*"
                                         intent.putExtra(Intent.EXTRA_STREAM, uri);
@@ -143,13 +157,16 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                                     .click {
                                         val clipboardManager =
                                             this@ResultActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                        val clipData = ClipData.newPlainText("text", OCRActivity.resultStr)
+                                        val clipData =
+                                            ClipData.newPlainText("text", OCRActivity.resultStr)
                                         clipboardManager.setPrimaryClip(clipData)
-                                        Toast.makeText(
-                                            this@ResultActivity,
-                                            "Copied !",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast
+                                            .makeText(
+                                                this@ResultActivity,
+                                                "Copied !",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                            .show()
                                     }, data = R.mipmap.copy)
                             }
                         })
@@ -164,12 +181,12 @@ class ResultActivity : BaseActivity(),NavAdCallback {
     override fun onStart() {
         super.onStart()
         if (App.isBackground.not()) {
-            AdManager.setSmallCallBack(this, Const.AdConst.AD_OTHER)
+            AdManager.setNativeCallBack(this, Const.AdConst.AD_OTHER)
             AdManager.getAdObjFromPool(Const.AdConst.AD_OTHER)
         }
     }
 
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
-        this.adWrapper.value=adWrapper
+        this.adWrapper.value=adWrapper.getAdInstance() as NativeAd
     }
 }

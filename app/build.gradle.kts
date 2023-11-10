@@ -17,7 +17,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.translate.app"
+        applicationId = prop.getProperty("packageName")
         minSdk = 21
         targetSdk = 34
         versionCode = 1
@@ -156,7 +156,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.5.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
-    implementation(project(mapOf("path" to ":cryCore")))
+//    implementation(project(mapOf("path" to ":cryCore")))
     implementation(project(mapOf("path" to ":imagepicker")))
 
     // To recognize Latin script
@@ -164,4 +164,8 @@ dependencies {
     // To recognize Devanagari script
     implementation("com.google.mlkit:text-recognition-devanagari:16.0.0")
 
+
+    implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
 }

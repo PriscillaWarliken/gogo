@@ -121,7 +121,7 @@ fun PreViewMainLayout(
         ) {
             CoilImage(modifier = Modifier.size(36.dp).click {
                 openAlbum.invoke()
-            }, data = R.mipmap.ic_launcher)
+            }, data = R.mipmap.photo)
             CoilImage(modifier = Modifier
                 .size(70.dp)
                 .pointerInput(Unit) {
