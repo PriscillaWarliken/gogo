@@ -27,6 +27,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -127,17 +128,12 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                         data = R.mipmap.universal_back
                     )
 
-
-                    if (adWrapper.value == null) {
-                        SmallNavView(modifier = Modifier.padding(top = 10.dp,start = 16.dp,end = 16.dp, ))
-                    }else{
-                        NativeAdsView(isBig = false, mAdInstance = adWrapper.value!!,modifier = Modifier
-                            .padding(top = 10.dp,start = 16.dp,end = 16.dp, ))
-                    }
+                    MyNativeViewPlace()
 
                     OCRActivity.resultBitmap?.let{
                         val scrollState = rememberScrollState()
-                        Column(modifier = Modifier.fillMaxWidth()
+                        Column(modifier = Modifier
+                            .fillMaxWidth()
                             .padding(top = 10.dp)
                             .background(
                                 color = Color.White,
@@ -163,34 +159,12 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                                         CoilImage(modifier = Modifier
                                             .size(22.dp)
                                             .click {
-                                                val intent = Intent()
-                                                intent.action = Intent.ACTION_SEND
-                                                val uri = Uri.parse(
-                                                    MediaStore.Images.Media.insertImage(
-                                                        contentResolver,
-                                                        OCRActivity.resultBitmap,
-                                                        "IMG" + Calendar.getInstance().time, null
-                                                    )
-                                                )
-                                                intent.type = "image/*"
-                                                intent.putExtra(Intent.EXTRA_STREAM, uri);
-                                                startActivity(Intent.createChooser(intent, "title"));
+                                                shareBitmap()
                                             }, data = R.mipmap.share)
                                         CoilImage(modifier = Modifier
                                             .size(22.dp)
                                             .click {
-                                                val clipboardManager =
-                                                    this@ResultActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                                val clipData =
-                                                    ClipData.newPlainText("text", OCRActivity.resultStr)
-                                                clipboardManager.setPrimaryClip(clipData)
-                                                Toast
-                                                    .makeText(
-                                                        this@ResultActivity,
-                                                        "Copied !",
-                                                        Toast.LENGTH_SHORT
-                                                    )
-                                                    .show()
+                                                copyText()
                                             }, data = R.mipmap.copy)
                                     }
                                 })
@@ -198,7 +172,7 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                                 .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
                                 Box {
                                     CoilImage(modifier = Modifier
-                                        .size(155.dp,128.dp)
+                                        .size(155.dp, 128.dp)
                                         .click {
                                             navActivity<TranslateActivity>()
                                             finish()
@@ -211,7 +185,7 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                                 Box {
                                     CoilImage(
                                         modifier = Modifier
-                                            .size(155.dp,128.dp)
+                                            .size(155.dp, 128.dp)
                                             .click {
                                                 if (fromCamera) {
                                                     start()
@@ -243,6 +217,45 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                 RateDialog { showDialog = false }
             }
         }
+    }
+
+    @Composable
+    private fun MyNativeViewPlace() {
+        Box(modifier = Modifier.fillMaxWidth().height(92.dp)){
+            if (adWrapper.value == null) {
+                SmallNavView(modifier = Modifier.padding(top = 10.dp, start = 16.dp, end = 16.dp))
+            } else {
+                NativeAdsView(
+                    isBig = false, mAdInstance = adWrapper.value!!, modifier = Modifier
+                        .padding(top = 10.dp, start = 16.dp, end = 16.dp)
+                )
+            }
+        }
+    }
+
+    private fun copyText() {
+        val clipboardManager =
+            this@ResultActivity.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clipData = ClipData.newPlainText("text", OCRActivity.resultStr)
+        clipboardManager.setPrimaryClip(clipData)
+        Toast.makeText(this@ResultActivity, "Copied !", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun shareBitmap() {
+        try {
+            val intent = Intent()
+            intent.action = Intent.ACTION_SEND
+            val uri = Uri.parse(
+                MediaStore.Images.Media.insertImage(
+                    contentResolver,
+                    OCRActivity.resultBitmap,
+                    "IMG" + Calendar.getInstance().time, null
+                )
+            )
+            intent.type = "image/*"
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            startActivity(Intent.createChooser(intent, "title"))
+        }catch (e:Exception){}
     }
 
 

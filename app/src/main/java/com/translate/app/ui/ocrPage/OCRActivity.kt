@@ -235,7 +235,13 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
                         }
 
                         resultBitmap = bmp
-                        parseResultString(resultArr)
+                        if (resultArr.isNullOrEmpty()) {
+                            result.textBlocks.forEach {block->
+                                resultStr += "${block.text}\n"
+                            }
+                        }else{
+                            parseResultString(resultArr)
+                        }
                         withContext(Dispatchers.Main){
                             showIntAd()
                         }
@@ -271,7 +277,6 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
             arr.add(it.text)
         }
         try {
-            delay(1000)
             val json = Const.baseParam.deepCopy().apply {
                 addProperty("langFrom", Repository.sourceLanguage!!.language)
                 addProperty("langTo",Repository.targetLanguage!!.language)
@@ -321,10 +326,14 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
             }
 
             val textPaint = TextPaint()
-            textPaint.textSize = 70f //calculateTextSizeToFitRect(afterTT,rect)
+            textPaint.textSize = calculateTextSizeToFitRect(afterTT,rect)
             textPaint.isAntiAlias = true
             textPaint.bgColor = android.graphics.Color.WHITE
             val drawTextWidth = if (rect.width() >= rect.height()) rect.width() else rect.height()
+
+//            if (drawTextWidth <= 50f) {
+//                textPaint.textSize = 30f
+//            }
             val layout = StaticLayout(
                 afterTT,
                 textPaint,
@@ -348,7 +357,7 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
                 rect.left.toFloat(),
                 rect.top.toFloat(),
                 rect.right.toFloat(),
-                maxHeight.toFloat()
+                rect.bottom.toFloat()
             )
 
             val pointX = bgRectF.right - bgRectF.width() / 2f

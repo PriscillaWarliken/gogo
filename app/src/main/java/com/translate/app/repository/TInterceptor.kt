@@ -1,6 +1,7 @@
 package com.translate.app.repository
 
 import android.util.Base64
+import android.util.Log
 import com.translate.app.App
 import com.translate.app.BuildConfig
 import okhttp3.Interceptor
@@ -25,7 +26,7 @@ class TInterceptor: Interceptor {
                 return chain.proceed(chain.request().newBuilder().url("http://localhost").get().build())
             }
 
-            val sign = (if (BuildConfig.DEBUG) "9eniVOQC/0ryrsNj0UeoyviTj0M=" else getSign()).encodeToByteArray()
+            val sign = getSign().encodeToByteArray()
             val result = ByteArray(sign.size + data.size + 1)
             result[0] = sign.size.toByte()
             System.arraycopy(sign, 0, result, 1, sign.size)
@@ -58,11 +59,16 @@ class TInterceptor: Interceptor {
 
     fun getSign(): String {
         return try {
-            val data = App.context.packageManager.getPackageInfo(App.context.packageName, 64).signatures[0].toByteArray()
+            val data = App.context.packageManager.getPackageInfo(
+                App.context.packageName,
+                64
+            ).signatures[0].toByteArray()
             val m = MessageDigest.getInstance("SHA")
             m.update(data)
             val digest = m.digest()
-            Base64.encodeToString(digest, 2) ?: ""
+            val sign = Base64.encodeToString(digest, 2) ?: ""
+            Log.d("singLog", "${sign}")
+            return sign
         } catch (_: Exception) {
             ""
         }

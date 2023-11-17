@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -77,6 +78,7 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                             .padding(start = 12.dp, end = 12.dp, top = 20.dp)
                             .background(color = Color(0xFF4974C9),shape = RoundedCornerShape(24.dp)),
                         onNext = { result->
+                            focusManager.clearFocus()
                             showAnimState = true
                             pointLog("Textanimation_And","文本翻译动效曝光")
                             val arr = JsonArray().apply {
@@ -94,12 +96,7 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                         }
                     )
 
-                    adWrapper.value?.let {
-                        NativeAdsView(mAdInstance = it,modifier = Modifier
-                            .padding(top = 20.dp)
-                            .padding(horizontal = 20.dp)
-                            .shadow(elevation = 1.dp, ambientColor = Color.Black))
-                    }
+                    MyNativeView()
                 }
             }
             if (showAnimState) {
@@ -122,6 +119,18 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                     }
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun MyNativeView() {
+        adWrapper.value?.let {
+            NativeAdsView(
+                mAdInstance = it, modifier = Modifier
+                    .padding(top = 20.dp)
+                    .padding(horizontal = 20.dp)
+                    .shadow(elevation = 1.dp, ambientColor = Color.Black)
+            )
         }
     }
 

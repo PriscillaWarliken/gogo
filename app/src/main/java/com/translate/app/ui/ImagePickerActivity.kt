@@ -200,8 +200,10 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
                 temp = Repository.sourceLanguage
                 Repository.sourceLanguage = Repository.targetLanguage
                 Repository.targetLanguage = temp
-                binding.sourceLanguage.text = Repository.sourceLanguage!!.languageEn
-                binding.targetLanguage.text = Repository.targetLanguage!!.languageEn
+                sourceLanguage = Repository.sourceLanguage!!.languageEn
+                targetLanguage = Repository.targetLanguage!!.languageEn
+                binding.sourceLanguage.text = sourceLanguage
+                binding.targetLanguage.text = targetLanguage
             }
         }
 

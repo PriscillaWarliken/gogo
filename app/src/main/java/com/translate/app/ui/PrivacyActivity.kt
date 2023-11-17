@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,7 +76,13 @@ class PrivacyActivity : BaseActivity() {
                         withStyle(SpanStyle(color = Color(0xFF333333), fontSize = 14.sp)){
                             append("Click \"Start\" to start the experience\nand accept our")
                         }
-                        withStyle(SpanStyle(color = Color(0xFF58B9EE), fontSize = 14.sp)){
+                        withStyle(
+                            SpanStyle(
+                                color = Color(0xFF58B9EE),
+                                fontSize = 14.sp,
+                                textDecoration = TextDecoration.Underline
+                            )
+                        ) {
                             append(" Privacy Policy")
                         }
                     },
