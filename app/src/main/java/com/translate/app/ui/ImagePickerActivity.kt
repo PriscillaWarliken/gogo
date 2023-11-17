@@ -38,6 +38,8 @@ import com.translate.app.Const
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ads.callback.NavAdCallback
+import com.translate.app.repository.Repository
+import com.translate.app.repository.bean.LanguageBeanItem
 import com.translate.app.ui.languagePage.LanguageActivity
 import com.translate.app.ui.ocrPage.ResultActivity
 
@@ -191,6 +193,16 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
         binding.targetLanguage.setOnClickListener {
             LanguageActivity.sourceSelectState = false
             startActivity(Intent(this,config.clazz))
+        }
+        binding.iv2.setOnClickListener {
+            var temp: LanguageBeanItem?
+            if (Repository.sourceLanguage != null && Repository.targetLanguage != null) {
+                temp = Repository.sourceLanguage
+                Repository.sourceLanguage = Repository.targetLanguage
+                Repository.targetLanguage = temp
+                binding.sourceLanguage.text = Repository.sourceLanguage!!.languageEn
+                binding.targetLanguage.text = Repository.targetLanguage!!.languageEn
+            }
         }
 
 //        binding.snackbar.config(config)

@@ -61,7 +61,6 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestAllPermission()
         pointLog("Camera_And","拍照页曝光")
         setContent {
             val lensFacing = remember {
@@ -109,6 +108,11 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
                 PermissDialog{showPermissionDialog = false}
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requestAllPermission()
     }
 
     private fun requestAllPermission() {
@@ -215,6 +219,7 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
         this.adWrapper.value=adWrapper.getAdInstance() as NativeAd
     }
+
 
     companion object{
         const val REQUEST_CODE_CAPTURE = 1

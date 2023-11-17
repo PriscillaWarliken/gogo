@@ -148,9 +148,9 @@ object Repository {
     private fun dealConfig() {
         try {
             sharedPreferences.edit {
-                putInt(Const.START_TIME,configBean.resp.bigBig)
+                putInt(Const.START_TIME,if (configBean.resp.bigBig == 0) 10 else configBean.resp.bigBig)
             }
-            refreshTime = configBean.resp.pullMin * 60 * 1000L
+            refreshTime = (if (configBean.resp.pullMin == 0) 10 else  configBean.resp.pullMin) * 60 * 1000L
             configBean.resp.adArrays?.let {
                 val map = mutableMapOf<String, AdWrapper>()
                 it.forEach { out ->

@@ -40,15 +40,6 @@ android {
         buildConfigField("String", "translate_url", "\"${prop.getProperty("translateUrl")}\"")
         buildConfigField("String", "privacy_url", "\"${prop.getProperty("privacyUrl")}\"")
 
-        buildConfigField("String", "adjust_token", "\"${prop.getProperty("adjustToken")}\"")
-        buildConfigField("String", "adjust_code", "\"${prop.getProperty("adjustCode")}\"")
-        buildConfigField("String", "adjust_referrerUrl", "\"${prop.getProperty("adjustReferrerUrl")}\"")
-        buildConfigField("String", "adRequestCode", "\"${prop.getProperty("adRequestCode")}\"")
-        buildConfigField("String", "adTapCode", "\"${prop.getProperty("adTapCode")}\"")
-        buildConfigField("String", "adFillCode", "\"${prop.getProperty("adFillCode")}\"")
-        buildConfigField("String", "adUnit", "\"${prop.getProperty("adUnit")}\"")
-        buildConfigField("String", "adRevenue", "\"${prop.getProperty("adRevenue")}\"")
-        buildConfigField("String", "adSite", "\"${prop.getProperty("adSite")}\"")
     }
 
     signingConfigs {

@@ -21,11 +21,8 @@ import kotlinx.coroutines.withContext
 
 class TranslateViewModel : ViewModel() {
 
-
-
     suspend fun execTranslateApi(result: JsonArray, sourceLanguage:String, targetLanguage:String) = withContext(Dispatchers.IO) {
         try {
-//            delay(5000)
             val json = Const.baseParam.deepCopy().apply {
                 addProperty("langFrom", sourceLanguage)
                 addProperty("langTo",targetLanguage)

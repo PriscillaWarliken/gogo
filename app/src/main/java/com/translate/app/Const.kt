@@ -37,6 +37,8 @@ object Const {
     const val TRANSLATE_COUNT = "TRANSLATE_COUNT"
     const val START_EXPORT = "START_EXPORT"
     const val HOME_EXPORT = "HOME_EXPORT"
+    const val RESULT_COUNT = "RESULT_COUNT"
+    const val SHOW_RATE = "SHOW_RATE"
 
     val pName: String get() = App.context.packageName
 

@@ -63,6 +63,7 @@ class LanguageActivity : BaseActivity(),NavAdCallback {
     }
 
     private var searchResultList = mutableListOf<LanguageBeanItem>()
+    private var inputText:String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,7 +108,10 @@ class LanguageActivity : BaseActivity(),NavAdCallback {
                 Spacer(
                     modifier = Modifier
                         .padding(top = 18.dp)
-                        .padding(start = if (sourceSelectState) 50.dp else 0.dp, end = if (sourceSelectState) 0.dp else 80.dp)
+                        .padding(
+                            start = if (sourceSelectState) 50.dp else 0.dp,
+                            end = if (sourceSelectState) 0.dp else 80.dp
+                        )
                         .align(if (sourceSelectState) Alignment.Start else Alignment.End)
                         .size(26.dp, 12.dp)
                         .clip(shape = TriangleShape())
@@ -125,13 +129,18 @@ class LanguageActivity : BaseActivity(),NavAdCallback {
                         .verticalScroll(scrollState)
                 ) {
                     val recompose = currentRecomposeScope
-                    SearchEdit(modifier = Modifier.padding(top = 30.dp)) {
-                        searchResultList.clear()
-                        val result = Repository.getSearchResult(it)
-                        searchResultList.addAll(result)
-                        recompose.invalidate()
-                    }
-                    if (searchResultList.isEmpty()) {
+                    SearchEdit(modifier = Modifier.padding(top = 30.dp),
+                        onSearch = {
+                            inputText = it
+                            searchResultList.clear()
+                            val result = Repository.getSearchResult(it)
+                            searchResultList.addAll(result)
+                            recompose.invalidate()
+                        },
+                        onDelete = {
+                            focusManager.clearFocus()
+                        })
+                    if (searchResultList.isEmpty() && inputText.isEmpty()) {
                         LanguageListView()
                     }else{
                         SearchResultList()
@@ -164,8 +173,10 @@ class LanguageActivity : BaseActivity(),NavAdCallback {
             }
             Text(text = "All languages", fontSize = 14.sp,color = grey, modifier = Modifier.padding(vertical = 12.dp))
             Column(modifier = Modifier
+                .padding(bottom = 30.dp)
                 .fillMaxWidth()
-                .background(color = Color(0xFFF4F8FA), shape = RoundedCornerShape(16.dp))){
+                .background(color = Color(0xFFF4F8FA), shape = RoundedCornerShape(16.dp))
+            ){
                 Repository.allLanguageList.forEach {
                     LanguageItemView2(it)
                 }

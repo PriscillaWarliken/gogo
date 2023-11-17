@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -84,12 +85,21 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Repository.sharedPreferences.apply {
+            var count = getInt(Const.RESULT_COUNT,0)
+            edit {
+                putInt(Const.RESULT_COUNT,++count)
+            }
+        }
         pointLog("Textresults_And","文本翻译结果页曝光")
         LanguageActivity.setLanguageChangeListener(this)
         TranslateViewModel.reusltLiveData.observe(this){
             showAnimState = false
         }
-        if (Repository.sharedPreferences.getInt(Const.TRANSLATE_COUNT, 0) == 2) {
+        if (Repository.sharedPreferences.getInt(Const.RESULT_COUNT, 0) == 2 && Repository.sharedPreferences.getBoolean(Const.SHOW_RATE,true)) {
+            Repository.sharedPreferences.edit {
+                putBoolean(Const.SHOW_RATE,false)
+            }
             showDialog = true
         }
         setContent {

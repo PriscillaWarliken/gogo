@@ -54,6 +54,7 @@ fun SearchEdit(
     searchContent:String="",
     modifier:Modifier,
     onSearch: (String) -> Unit,
+    onDelete:()->Unit={}
 ) {
 
     var searchContent by remember { mutableStateOf(searchContent) }
@@ -72,6 +73,7 @@ fun SearchEdit(
             onDeleteClick = {
                 searchContent = ""
                 onSearch.invoke("")
+                onDelete.invoke()
             },
             onSearch = {
                 onSearch(searchContent)
@@ -101,10 +103,10 @@ fun SearchEditView(
     }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(Unit) {
-        delay(300)
-        focusRequester.requestFocus()
-    }
+//    LaunchedEffect(Unit) {
+//        delay(300)
+//        focusRequester.requestFocus()
+//    }
 
     TextField(
         modifier = modifier

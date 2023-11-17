@@ -76,13 +76,21 @@ class ResultActivity : BaseActivity(),NavAdCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         if (fromCamera) {
             pointLog("Cameraresults_And","拍照翻译结果页曝光")
         }else{
             pointLog("Albumresults _And","照片翻译结果页曝光")
         }
-        if (Repository.sharedPreferences.getInt(Const.TRANSLATE_COUNT, 0) == 2) {
+        Repository.sharedPreferences.apply {
+            var count = getInt(Const.RESULT_COUNT,0)
+            edit {
+                putInt(Const.RESULT_COUNT,++count)
+            }
+        }
+        if (Repository.sharedPreferences.getInt(Const.RESULT_COUNT, 0) == 2 && Repository.sharedPreferences.getBoolean(Const.SHOW_RATE,true)) {
+            Repository.sharedPreferences.edit {
+                putBoolean(Const.SHOW_RATE,false)
+            }
             showDialog = true
         }
         setContent {
