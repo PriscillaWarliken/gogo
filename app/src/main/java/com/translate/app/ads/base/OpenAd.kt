@@ -18,11 +18,11 @@ class OpenAd:BaseAd() {
 
                 override fun onAdLoaded(ad: AppOpenAd) {
                     setFullScreenCallBack(ad)
-                    getMyAdCallBack().onLoadSuccess(ad)
+                    getAdCallBack().onLoadSuccess(ad)
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    getMyAdCallBack().onLoadFail(loadAdError.code.toString(),loadAdError.message)
+                    getAdCallBack().onLoadFail(loadAdError.code.toString(),loadAdError.message)
                 }
             }
         )
@@ -31,16 +31,16 @@ class OpenAd:BaseAd() {
     private fun setFullScreenCallBack(ad: AppOpenAd) {
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
-                getMyAdCallBack().onClose()
+                getAdCallBack().onClose()
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                 Log.d("AdLog", "开屏展示失败 hashCode:${ad.hashCode()}")
-                getMyAdCallBack().onClose()
+                getAdCallBack().onClose()
             }
 
             override fun onAdShowedFullScreenContent() {
-                getMyAdCallBack().onShow()
+                getAdCallBack().onShow()
             }
         }
     }

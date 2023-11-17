@@ -7,11 +7,11 @@ abstract class BaseAd {
 
     abstract fun loadAd(adId: String)
 
-    fun setMyAdCallBack(aaa: AdCallBack) {
+    fun setAdCallBack(aaa: AdCallBack) {
         this.adCallBack = aaa
     }
 
-    fun getMyAdCallBack(): AdCallBack {
+    fun getAdCallBack(): AdCallBack {
         return adCallBack
     }
 }

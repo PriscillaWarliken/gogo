@@ -19,6 +19,8 @@ import com.translate.app.ui.ImagePickerActivity
 import com.translate.app.ui.weight.getSpByTag
 import com.translate.app.ui.weight.saveSP
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -57,7 +59,7 @@ object Repository {
                 val result = Gson().fromJson<List<LanguageBeanItem>>(json, object : TypeToken<List<LanguageBeanItem>>() {}.type)
                 allLanguageList.addAll(result)
 
-                val recentJson = sharedPreferences.getString(Const.RECENT_LANGUAGE,"") ?: ""
+                val recentJson = "" //sharedPreferences.getString(Const.RECENT_LANGUAGE,"") ?: ""
 
                 if (recentJson.isEmpty()) {
                     val default = allLanguageList.filter { (it.languageEn.contains("English") || it.languageEn.contains("Hindi") || it.languageEn.contains("Portuguese") || it.languageEn.contains("Spanish")) }
@@ -104,6 +106,7 @@ object Repository {
     }
 
     private lateinit var configBean:ConfigBean
+    private var refreshTime = 10 * 60 * 1000L
 
     suspend fun useCacheConfig() = withContext(Dispatchers.IO){
         try {
@@ -117,6 +120,16 @@ object Repository {
             useLocalConfig()
         }
         launch { getConfigApi() }
+        launch { refreshConfig() }
+    }
+
+    private suspend fun refreshConfig() = withContext(Dispatchers.IO) {
+        launch {
+            while (isActive) {
+                delay(refreshTime)
+                getConfigApi()
+            }
+        }
     }
 
     private suspend fun useLocalConfig() = withContext(Dispatchers.IO) {
@@ -133,14 +146,23 @@ object Repository {
     }
 
     private fun dealConfig() {
-        configBean.resp.adArrays?.let {
-            val map = mutableMapOf<String, AdWrapper>()
-            it.forEach { out ->
-                out.adSource[0].let {
-                    map[out.advPlace] = AdWrapper(out.advPlace,out.adOpen,out.adSource.sortedByDescending { it.adv_scale })
-                }
+        try {
+            sharedPreferences.edit {
+                putInt(Const.START_TIME,configBean.resp.bigBig)
             }
-            AdManager.initAdMapConfig(map, 3)
+            refreshTime = configBean.resp.pullMin * 60 * 1000L
+            configBean.resp.adArrays?.let {
+                val map = mutableMapOf<String, AdWrapper>()
+                it.forEach { out ->
+                    out.adSource[0].let {
+                        map[out.advPlace] = AdWrapper(out.advPlace,out.adOpen,out.adSource.sortedByDescending { it.adv_scale })
+                    }
+                }
+                AdManager.initAdMapConfig(map, configBean.resp.noNO)
+            }
+
+        }catch (e:Exception){
+            e.printStackTrace()
         }
     }
 

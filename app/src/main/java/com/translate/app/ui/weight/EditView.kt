@@ -2,7 +2,6 @@ package com.translate.app.ui.weight
 
 import android.content.ClipboardManager
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,10 +33,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalTextInputService
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
@@ -48,7 +48,6 @@ import com.google.accompanist.placeholder.material.placeholder
 import com.translate.app.R
 import com.translate.app.ui.pointLog
 import com.translate.app.ui.theme.grey1
-import kotlinx.coroutines.delay
 
 
 @Composable
@@ -58,7 +57,10 @@ fun TranslateEditView(
     modifier: Modifier = Modifier,
     onNext: (String) -> Unit
 ) {
-    var textContent by remember { mutableStateOf(text) }
+    var fullTag by remember { mutableStateOf(value = true) }
+    var textContent by remember { mutableStateOf(
+        value = TextFieldValue(text)
+    ) }
     val clipboard: ClipboardManager? = LocalContext.current.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
 
     Box(modifier = modifier){
@@ -67,16 +69,21 @@ fun TranslateEditView(
             hintText,
             modifier = Modifier,
             onValueChanged = {
+                if (fullTag && it.text.isNotEmpty()) {
+                    pointLog("Texthas_And","文本输入 有 数据曝光")
+                    fullTag = false
+                }
                 textContent = it
-            },
-            onNext = {
-                onNext(textContent)
-            })
+            }
+        ) {
+            onNext(textContent.text)
+        }
 
-        if (textContent.isEmpty()) {
+        if (textContent.text.isEmpty()) {
             Row(
                 modifier = Modifier
                     .padding(bottom = 22.dp)
+                    .padding(horizontal = 10.dp)
                     .fillMaxWidth()
                     .align(Alignment.BottomStart),
                 verticalAlignment = Alignment.CenterVertically,
@@ -85,7 +92,7 @@ fun TranslateEditView(
                 Box(
                     modifier = Modifier
                         .size(247.dp, 54.dp)
-                        .background(color = Color(0x663C60A9), shape = RoundedCornerShape(12.dp))
+                        .background(color = Color(0x33000000), shape = RoundedCornerShape(12.dp))
                 ) {
                     Row(modifier = Modifier.align(Alignment.Center)) {
                         CoilImage(modifier = Modifier.size(24.dp), data = R.mipmap.home_translate)
@@ -93,32 +100,38 @@ fun TranslateEditView(
                     }
                 }
 
-                CoilImage(modifier = Modifier
-                    .size(38.dp)
-                    .click {
-                        pointLog("paste_And","文本输入无数据点击粘贴")
-                        val clipData = clipboard!!.primaryClip
-                        if (clipData != null && clipData.itemCount > 0) {
-                            val text = clipData.getItemAt(0).text
-                            if (text != null) {
-                                textContent = text.toString()
+                CoilImage(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .click {
+                            pointLog("paste_And", "文本输入无数据点击粘贴")
+                            val clipData = clipboard!!.primaryClip
+                            if (clipData != null && clipData.itemCount > 0) {
+                                val text = clipData.getItemAt(0).text
+                                if (text != null) {
+                                    textContent = TextFieldValue(
+                                        text = text.toString(),
+                                        selection = TextRange(text.length)
+                                    )
+                                }
                             }
-                        }
-                    }, data = R.mipmap.home_paste)
+                        }, data = R.mipmap.home_paste
+                )
             }
-        }else{
+        }
+        else{
             CoilImage(modifier = Modifier
                 .align(Alignment.TopEnd)
                 .size(36.dp, 29.dp)
                 .click {
-                    textContent = ""
+                    textContent = TextFieldValue(text = "")
                 }, data = R.mipmap.home_eliminate)
 
             Box(
                 modifier = Modifier
                     .click {
-                        onNext(textContent)
-                        pointLog("clicktranslate_And","文本输入有数据点击翻译按钮")
+                        onNext(textContent.text)
+                        pointLog("clicktranslate_And", "文本输入有数据点击翻译按钮")
                     }
                     .padding(bottom = 22.dp)
                     .align(Alignment.BottomCenter)
@@ -137,10 +150,10 @@ fun TranslateEditView(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CommentEditView(
-    text: String,
+    text: TextFieldValue,
     hintText: String,
     modifier: Modifier = Modifier,
-    onValueChanged: (String) -> Unit,
+    onValueChanged: (TextFieldValue) -> Unit,
     onNext: () -> Unit
     ) {
     val keyboardService = LocalTextInputService.current
@@ -150,14 +163,10 @@ fun CommentEditView(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-//    LaunchedEffect(Unit) {
-//        delay(300)
-//        focusRequester.requestFocus()
-//    }
-
     TextField(
         modifier = modifier
             .fillMaxSize()
+            .padding(bottom = 70.dp)
             .focusRequester(focusRequester)
             .onFocusChanged {
                 if (it.isFocused) {
@@ -174,14 +183,13 @@ fun CommentEditView(
         },
         colors = TextFieldDefaults.textFieldColors(
             textColor = Color.White,
-            containerColor = Color(0xFF4974C9),
+            containerColor = Color.Transparent,
             cursorColor = Color.White,
             focusedIndicatorColor = Color.Transparent, // 有焦点时的颜色，透明
             unfocusedIndicatorColor = Color.Transparent, // 无焦点时的颜色，绿色
         ),
         trailingIcon = {
         },
-        shape = RoundedCornerShape(24.dp),
         keyboardActions = KeyboardActions {
             editFocusManager.clearFocus()
             onNext.invoke()

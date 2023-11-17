@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 
 class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
 
-    private var launchTime = 10
+    private var launchTime = Repository.sharedPreferences.getInt(Const.START_TIME,10)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +50,15 @@ class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
             navActivity<PrivacyActivity>()
             return
         }
-
+        if (App.coldStart.not()) {
+            lifecycleScope.launch {
+                delay(200)
+                AdManager.setNativeCallBack(this@StartActivity, Const.AdConst.AD_INITIAL)
+                AdManager.getAdObjFromPool(Const.AdConst.AD_INITIAL)
+            }
+        }
+        AdManager.clearNativeCallBack()
+        App.coldStart = false
         if (Repository.sharedPreferences.getBoolean(Const.START_EXPORT, true)) {
             pointLog("Open_And","启动页曝光（总的）")
             Repository.sharedPreferences.edit { putBoolean(Const.START_EXPORT,false) }
@@ -93,24 +101,16 @@ class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
                     }
                 }
             }
-            if (AdManager.skipLiveData.hasActiveObservers().not()) {
-                AdManager.skipLiveData.observe(this){
+            if (AdManager.jumpLiveData.hasActiveObservers().not()) {
+                AdManager.jumpLiveData.observe(this){
                     if (it.contains(Const.AdConst.AD_TEXT) && it.contains(Const.AdConst.AD_START)) {
-                        launchTime = 1
+                        launchTime = 2
                     }
                 }
             }
         }catch (_:Exception){}
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (App.isBackground.not()) {
-            AdManager.setNativeCallBack(this, Const.AdConst.AD_INITIAL)
-            AdManager.getAdObjFromPool(Const.AdConst.AD_INITIAL)
-        }
-        AdManager.clearNativeCallBack()
-    }
 
 
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
@@ -119,7 +119,7 @@ class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
 
     override fun onStop() {
         super.onStop()
-        AdManager.skipLiveData.removeObservers(this)
+        AdManager.jumpLiveData.removeObservers(this)
         AdManager.adMapLiveData.removeObservers(this)
     }
 

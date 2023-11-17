@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.viewModels
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -25,6 +27,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -49,6 +52,7 @@ import com.nguyenhoanglam.imagepicker.model.ImagePickerConfig
 import com.nguyenhoanglam.imagepicker.model.IndicatorType
 import com.nguyenhoanglam.imagepicker.model.RootDirectory
 import com.nguyenhoanglam.imagepicker.ui.imagepicker.registerImagePicker
+import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.ads.AdManager
@@ -66,6 +70,8 @@ import com.translate.app.ui.ocrPage.OCRActivity
 import com.translate.app.ui.pointLog
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
+import com.translate.app.ui.weight.RateDialog
+import com.translate.app.ui.weight.SmallNavView
 import com.translate.app.ui.weight.click
 import kotlinx.coroutines.launch
 
@@ -74,6 +80,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
 
     val viewModel by viewModels<TranslateViewModel>()
     private var showAnimState by mutableStateOf(value = false)
+    private var showDialog by mutableStateOf(value = false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,24 +89,37 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
         TranslateViewModel.reusltLiveData.observe(this){
             showAnimState = false
         }
+        if (Repository.sharedPreferences.getInt(Const.TRANSLATE_COUNT, 0) == 2) {
+            showDialog = true
+        }
         setContent {
             val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
-                    .statusBarsPadding()
                     .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
                     .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                TopBar()
+                TopBar{
+                    execApi()
+                }
 
-                adWrapper.value?.let {
+                if (adWrapper.value == null) {
+                    SmallNavView(
+                        modifier = Modifier
+                            .padding(top = 20.dp)
+                            .padding(horizontal = 20.dp)
+                    )
+                }else{
                     NativeAdsView(
-                        isBig = false, mAdInstance = it, modifier = Modifier
+                        isBig = false, mAdInstance = adWrapper.value!!, modifier = Modifier
                             .padding(top = 20.dp)
                             .padding(horizontal = 20.dp)
                     )
                 }
+
 
                 Column(
                     modifier = Modifier
@@ -119,10 +139,9 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
 
                     Spacer(
                         modifier = Modifier
-                            .padding(vertical = 20.dp)
-                            .fillMaxWidth(0.9f)
+                            .fillMaxWidth(1f)
                             .height(1.dp)
-                            .background(color = Color.White)
+                            .background(color = Color(0x80FFFFFF))
                     )
 
                     Text(
@@ -202,23 +221,38 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
                     }
                 }
             }
+            Dialogs()
         }
-
-        AdManager.setNativeCallBack(this, Const.AdConst.AD_TEXT)
-        AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
     }
 
+    @Composable
+    private fun Dialogs() {
+        if (showDialog){
+            RateDialog {
+                showDialog = false
+            }
+        }
+    }
+
+    var isBackground = false
+    override fun onStart() {
+        super.onStart()
+        isBackground = App.isBackground
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isBackground.not()) {
+            AdManager.setNativeCallBack(this, Const.AdConst.AD_TEXT)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
+        }
+    }
 
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
         this.adWrapper.value=adWrapper.getAdInstance() as NativeAd
     }
 
-    /**
-     * 将文本复制到剪贴板
-     *
-     * @param text 要复制的文本
-     */
-    fun copyText(text: String?) {
+    private fun copyText(text: String?) {
         val clipboardManager = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
@@ -226,6 +260,10 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
     }
 
     override fun changeLanguage(sourceLanguage: String, targetLanguage: String) {
+        execApi()
+    }
+
+    private fun execApi() {
         showAnimState = true
         val arr = JsonArray().apply {
             add(TranslateViewModel.srcText)
@@ -238,7 +276,6 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
             )
             showIntAd()
         }
-
     }
 
     override fun onDestroy() {
@@ -247,70 +284,6 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
     }
 
 
-    private var images = ArrayList<Image>()
-    private val launcher = registerImagePicker {
-        if (it.isNullOrEmpty()) {
-            return@registerImagePicker
-        }
-        images = it
-        val image = images.first()
-
-        val intent = Intent(this, OCRActivity::class.java)
-        intent.putExtra("PATH", "${image.uri.path}")
-        startActivity(intent)
-    }
-
-    private fun start() {
-        val folderMode = false
-        val multiSelectMode = false
-        val cameraMode = false
-        val showCamera = false
-        val selectAllEnabled = false
-        val unselectAllEnabled = false
-        val showNumberIndicator = false
-        val enableImageTransition = false
-
-        val config = ImagePickerConfig(
-            clazz = LanguageActivity::class.java,
-            isCameraMode = cameraMode,
-            isMultiSelectMode = multiSelectMode,
-            isFolderMode = folderMode,
-            isShowCamera = showCamera,
-            isSelectAllEnabled = selectAllEnabled,
-            isUnselectAllEnabled = unselectAllEnabled,
-            isImageTransitionEnabled = enableImageTransition,
-            selectedIndicatorType = if (showNumberIndicator) IndicatorType.NUMBER else IndicatorType.CHECK_MARK,
-            limitSize = 100,
-            rootDirectory = RootDirectory.DCIM,
-            subDirectory = "Image Picker",
-            folderGridCount = GridCount(2, 4),
-            imageGridCount = GridCount(3, 5),
-            selectedImages = images,
-            customColor = CustomColor(
-                background = "#000000",
-                statusBar = "#000000",
-                toolbar = "#212121",
-                toolbarTitle = "#FFFFFF",
-                toolbarIcon = "#FFFFFF",
-                doneButtonTitle = "#FFFFFF",
-                snackBarBackground = "#323232",
-                snackBarMessage = "#FFFFFF",
-                snackBarButtonTitle = "#4CAF50",
-                loadingIndicator = "#757575",
-                selectedImageIndicator = "#1976D2"
-            ),
-            customMessage = CustomMessage(
-                reachLimitSize = "You can only select up to 10 images.",
-                cameraError = "Unable to open camera.",
-                noCamera = "Your device has no camera.",
-                noImage = "No image found.",
-                noPhotoAccessPermission = "Please allow permission to access photos and media.",
-                noCameraPermission = "Please allow permission to access camera."
-            ),
-        )
-
-        launcher.launch(config, ImagePickerActivity::class.java)
-    }
 
     private fun showIntAd() {
         AdManager.setIntAdCallBack(this)

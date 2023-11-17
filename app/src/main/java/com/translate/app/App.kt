@@ -6,7 +6,12 @@ import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import android.view.WindowManager
+import androidx.core.view.WindowCompat
+import com.google.android.gms.ads.AdActivity
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -24,6 +29,7 @@ class App : Application(),ActivityLifecycleCallbacks {
         @SuppressLint("StaticFieldLeak")
         lateinit var context:Context
         var isBackground = false
+        var coldStart = true
         lateinit var firebaseAnalytics:FirebaseAnalytics
         val coroutineScope by lazy { CoroutineScope(Dispatchers.IO + SupervisorJob()) }
     }
@@ -31,6 +37,7 @@ class App : Application(),ActivityLifecycleCallbacks {
     override fun onCreate() {
         super.onCreate()
         context = this
+
         firebaseAnalytics = Firebase.analytics
         registerActivityLifecycleCallbacks(this)
         Repository.init()
@@ -52,6 +59,10 @@ class App : Application(),ActivityLifecycleCallbacks {
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
 
     override fun onActivityStarted(activity: Activity) {
+        if (activity is AdActivity) {
+            activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            activity.window.statusBarColor = Color.TRANSPARENT
+        }
         activityCount++
     }
 

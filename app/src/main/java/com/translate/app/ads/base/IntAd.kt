@@ -14,12 +14,12 @@ class IntAd:BaseAd() {
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(App.context,adId, adRequest, object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
-                getMyAdCallBack().onLoadFail(adError.code.toString(),adError.message)
+                getAdCallBack().onLoadFail(adError.code.toString(),adError.message)
             }
 
             override fun onAdLoaded(interstitialAd: InterstitialAd) {
                 setFullCallBack(interstitialAd)
-                getMyAdCallBack().onLoadSuccess(interstitialAd)
+                getAdCallBack().onLoadSuccess(interstitialAd)
             }
         })
     }
@@ -27,16 +27,16 @@ class IntAd:BaseAd() {
     private fun setFullCallBack(interstitialAd: InterstitialAd) {
         interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
-                getMyAdCallBack().onClose()
+                getAdCallBack().onClose()
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                 Log.d("AdLog", "插页展示失败 hashCode:${interstitialAd.hashCode()}")
-                getMyAdCallBack().onClose()
+                getAdCallBack().onClose()
             }
 
             override fun onAdShowedFullScreenContent() {
-                getMyAdCallBack().onShow()
+                getAdCallBack().onShow()
             }
         }
     }

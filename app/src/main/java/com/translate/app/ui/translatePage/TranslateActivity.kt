@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
@@ -50,6 +52,7 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pointLog("NoText_And","文本输入 无 数据曝光")
         setContent {
             val focusManager = LocalFocusManager.current
             Box(
@@ -71,7 +74,8 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                         hintText = "Enter text...",
                         modifier = Modifier
                             .size(355.dp, 414.dp)
-                            .padding(start = 12.dp, end = 12.dp, top = 20.dp),
+                            .padding(start = 12.dp, end = 12.dp, top = 20.dp)
+                            .background(color = Color(0xFF4974C9),shape = RoundedCornerShape(24.dp)),
                         onNext = { result->
                             showAnimState = true
                             pointLog("Textanimation_And","文本翻译动效曝光")
@@ -93,7 +97,8 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                     adWrapper.value?.let {
                         NativeAdsView(mAdInstance = it,modifier = Modifier
                             .padding(top = 20.dp)
-                            .padding(horizontal = 20.dp))
+                            .padding(horizontal = 20.dp)
+                            .shadow(elevation = 1.dp, ambientColor = Color.Black))
                     }
                 }
             }

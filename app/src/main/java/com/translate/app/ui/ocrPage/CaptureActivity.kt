@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 import com.google.android.gms.ads.nativead.NativeAd
 import com.nguyenhoanglam.imagepicker.helper.PermissionHelper
 import com.nguyenhoanglam.imagepicker.model.CustomColor
@@ -38,6 +39,7 @@ import com.translate.app.R
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ads.callback.NavAdCallback
+import com.translate.app.repository.Repository
 import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.ImagePickerActivity
 import com.translate.app.ui.TopBar
@@ -46,6 +48,7 @@ import com.translate.app.ui.pointLog
 import com.translate.app.ui.weight.NativeAdsView
 import com.translate.app.ui.weight.PermissDialog
 import com.translate.app.ui.weight.PreViewMainLayout
+import com.translate.app.ui.weight.SmallNavView
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -55,71 +58,6 @@ import java.util.concurrent.Executors
 class CaptureActivity : BaseActivity(), NavAdCallback {
 
     private var showPermissionDialog by mutableStateOf(value = false)
-    private var images = ArrayList<Image>()
-    private val launcher = registerImagePicker {
-        if (it.isNullOrEmpty()) {
-            return@registerImagePicker
-        }
-        images = it
-        val image = images.first()
-
-        val intent = Intent(this, OCRActivity::class.java)
-        intent.putExtra("PATH", "${image.uri.path}")
-        startActivity(intent)
-    }
-
-    private fun start() {
-        val folderMode = false
-        val multiSelectMode = false
-        val cameraMode = false
-        val showCamera = false
-        val selectAllEnabled = false
-        val unselectAllEnabled = false
-        val showNumberIndicator = false
-        val enableImageTransition = false
-
-        val config = ImagePickerConfig(
-            clazz = LanguageActivity::class.java,
-            isCameraMode = cameraMode,
-            isMultiSelectMode = multiSelectMode,
-            isFolderMode = folderMode,
-            isShowCamera = showCamera,
-            isSelectAllEnabled = selectAllEnabled,
-            isUnselectAllEnabled = unselectAllEnabled,
-            isImageTransitionEnabled = enableImageTransition,
-            selectedIndicatorType = if (showNumberIndicator) IndicatorType.NUMBER else IndicatorType.CHECK_MARK,
-            limitSize = 100,
-            rootDirectory = RootDirectory.DCIM,
-            subDirectory = "Image Picker",
-            folderGridCount = GridCount(2, 4),
-            imageGridCount = GridCount(3, 5),
-            selectedImages = images,
-            customColor = CustomColor(
-                background = "#000000",
-                statusBar = "#000000",
-                toolbar = "#212121",
-                toolbarTitle = "#FFFFFF",
-                toolbarIcon = "#FFFFFF",
-                doneButtonTitle = "#FFFFFF",
-                snackBarBackground = "#323232",
-                snackBarMessage = "#FFFFFF",
-                snackBarButtonTitle = "#4CAF50",
-                loadingIndicator = "#757575",
-                selectedImageIndicator = "#1976D2"
-            ),
-            customMessage = CustomMessage(
-                reachLimitSize = "You can only select up to 10 images.",
-                cameraError = "Unable to open camera.",
-                noCamera = "Your device has no camera.",
-                noImage = "No image found.",
-                noPhotoAccessPermission = "Please allow permission to access photos and media.",
-                noCameraPermission = "Please allow permission to access camera."
-            ),
-        )
-
-        launcher.launch(config, ImagePickerActivity::class.java)
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,8 +73,12 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
                 Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally){
                     TopBar()
 
-                    adWrapper.value?.let {
-                        NativeAdsView(isBig = false, mAdInstance = it,modifier = Modifier
+                    if (adWrapper.value == null) {
+                        SmallNavView(modifier = Modifier
+                            .padding(top = 20.dp)
+                            .padding(horizontal = 20.dp))
+                    }else{
+                        NativeAdsView(isBig = false, mAdInstance = adWrapper.value!!,modifier = Modifier
                             .padding(top = 20.dp)
                             .padding(horizontal = 20.dp))
                     }
@@ -157,7 +99,8 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
                             }
                         },
                         openAlbum = {
-                            start()
+                            start(true)
+                            showInt()
                         })
                 }
             }
@@ -218,7 +161,6 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
                 val intent = Intent(this@CaptureActivity, OCRActivity::class.java)
                 intent.putExtra("PATH", "${it.path}")
                 startActivity(intent)
-                finish()
             },
             onError = {
                 Log.d("TAG_HQL", "takePhoto: ${it.message}")
@@ -263,7 +205,7 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
 
     override fun onStart() {
         super.onStart()
-        if (App.isBackground.not()) {
+        if (App.isBackground.not() && canShowNav) {
             AdManager.setNativeCallBack(this, Const.AdConst.AD_OTHER)
             AdManager.getAdObjFromPool(Const.AdConst.AD_OTHER)
         }

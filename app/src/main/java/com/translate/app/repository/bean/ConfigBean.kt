@@ -8,7 +8,10 @@ data class ConfigBean(
     val status: Int
 )
 data class Resp(
-    val adArrays: List<AdArray>
+    val adArrays: List<AdArray>,
+    val bigBig:Int,
+    val noNO:Int,
+    val pullMin:Int
 )
 
 data class AdArray(

@@ -1,4 +1,4 @@
-<com.google.android.gms.ads.nativead.NativeAdView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/nav_layout_small"
@@ -8,7 +8,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFEFF9FF">
+        android:background="#FFFFFFFF">
 
         <ImageView
             android:id="@+id/ad_icon"
@@ -30,7 +30,6 @@
             android:textColor="#FF1A1A1A"
             android:textSize="14sp"
             android:layout_marginHorizontal="10dp"
-            android:background="#FFD9D9D9"
             app:layout_constraintEnd_toStartOf="@id/ad_call"
             app:layout_constraintTop_toTopOf="@id/ad_icon"
             app:layout_constraintStart_toEndOf="@id/ad_icon"/>
@@ -43,7 +42,6 @@
             android:textColor="#FF666666"
             android:maxLines="2"
             android:layout_marginHorizontal="10dp"
-            android:background="#FFD9D9D9"
             app:layout_constraintEnd_toStartOf="@id/ad_call"
             app:layout_constraintStart_toEndOf="@id/ad_icon"
             app:layout_constraintTop_toBottomOf="@id/ad_title"
@@ -56,30 +54,16 @@
             android:layout_height="36dp"
             android:minWidth="68dp"
             android:text=""
-            android:textColor="@color/white"
             android:textSize="10sp"
             android:gravity="center"
             android:layout_marginHorizontal="5dp"
-            android:background="#FFD9D9D9"
+            android:background="#FF6ACAFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/ad_title"/>
 
-        <TextView
-            android:id="@+id/tag_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="AD"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            android:paddingHorizontal="4dp"
-            android:paddingVertical="1dp"
-            android:background="@drawable/big_ad_install"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</com.google.android.gms.ads.nativead.NativeAdView>
+</FrameLayout>

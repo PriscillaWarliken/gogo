@@ -46,6 +46,7 @@ import com.translate.app.ui.theme.grey
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
 import com.translate.app.ui.weight.SearchEdit
+import com.translate.app.ui.weight.TriangleShape
 import com.translate.app.ui.weight.click
 import com.translate.app.ui.weight.saveSP
 
@@ -103,10 +104,18 @@ class LanguageActivity : BaseActivity(),NavAdCallback {
                         .click { finish() }, data = R.mipmap.ic_return)
                 }
 
+                Spacer(
+                    modifier = Modifier
+                        .padding(top = 18.dp)
+                        .padding(start = if (sourceSelectState) 50.dp else 0.dp, end = if (sourceSelectState) 0.dp else 80.dp)
+                        .align(if (sourceSelectState) Alignment.Start else Alignment.End)
+                        .size(26.dp, 12.dp)
+                        .clip(shape = TriangleShape())
+                        .background(color = Color.White)
+                )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .padding(top = 30.dp)
                         .fillMaxWidth()
                         .fillMaxHeight()
                         .clip(shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
@@ -263,7 +272,7 @@ class LanguageActivity : BaseActivity(),NavAdCallback {
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(0.9f)
                 .height(1.dp)
-                .background(color = Color(0xFFC8C8C8)))
+                .background(color = Color(0x4DC8C8C8)))
         }
     }
 

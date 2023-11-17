@@ -21,32 +21,30 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 object AdManager {
 
-    private const val TAG = "AdLog"
-    lateinit var mAdConfigMap: MutableMap<String, AdWrapper>
-
-    val smallPoolPool = ConcurrentLinkedQueue<AdWrapper>()
-    val fullPoolPool = ConcurrentLinkedQueue<AdWrapper>()
-
-    private var nativeAdCallMap = mutableMapOf<String, NavAdCallback>()
-
-    private lateinit var intAdCallBack: IntAdCallback
-
-    var skipTag = mutableListOf<String>()
-    var skipLiveData = MutableLiveData<MutableList<String>>()
-
-    var adMapLiveData = MutableLiveData(false)
-    var needShowNav:Boolean = false
-    private var permissionNav: Boolean = true
-    private var navClickCount:Int = 3
-    private var nowClickCount:Int = Repository.sharedPreferences.getInt(Const.AdConst.CLICK_COUNT,0)
-
     private var adRequestCode = BuildConfig.adRequestCode
     private var adTapCode = BuildConfig.adTapCode
     private var adFillCode = BuildConfig.adFillCode
-
     private var adUnit = BuildConfig.adUnit
     private var adRevenue = BuildConfig.adRevenue
     private var adSite = BuildConfig.adSite
+
+    private const val TAG = "AdLog"
+    private lateinit var mAdConfigMap: MutableMap<String, AdWrapper>
+
+    private var nativeAdCallMap = mutableMapOf<String, NavAdCallback>()
+    private lateinit var intAdCallBack: IntAdCallback
+
+    val smallAdPool = ConcurrentLinkedQueue<AdWrapper>()
+    val fullAdPool = ConcurrentLinkedQueue<AdWrapper>()
+
+    var jumpTag = mutableListOf<String>()
+    var jumpLiveData = MutableLiveData<MutableList<String>>()
+
+    var adMapLiveData = MutableLiveData(false)
+    var needShowNav:Boolean = false
+    private var navPermission: Boolean = true
+    private var navClickCount:Int = 3
+    private var nowClickCount:Int = Repository.sharedPreferences.getInt(Const.AdConst.CLICK_COUNT,0)
 
     fun setNativeCallBack(l: NavAdCallback, place: String) {
         nativeAdCallMap.clear()
@@ -97,20 +95,20 @@ object AdManager {
                 it.value.openBtn = adMap[it.key]!!.openBtn
                 it.value.innerAdList = adMap[it.key]!!.innerAdList
             }
-            reloadNavLimit(clickLimit)
+            reloadNavClick(clickLimit)
             adMapLiveData.postValue(true)
         }catch (_:Exception){}
     }
 
-    private fun reloadNavLimit(navClickCount: Int) {
+    private fun reloadNavClick(navClickCount: Int) {
         this.navClickCount = navClickCount
         this.nowClickCount = Repository.sharedPreferences.getInt(Const.AdConst.CLICK_COUNT,0)
         val clickTime = Repository.sharedPreferences.getLong(Const.AdConst.CLICK_TIME, 0L)
-        permissionNav = Repository.sharedPreferences.getBoolean(Const.AdConst.permissionNav,true)
+        navPermission = Repository.sharedPreferences.getBoolean(Const.AdConst.permissionNav,true)
 
-        if (!permissionNav && getMoringTime() - clickTime >= 1) {
+        if (!navPermission && getMoringTime() - clickTime >= 1) {
             this.nowClickCount = 0
-            permissionNav = true
+            navPermission = true
             Repository.sharedPreferences.edit {
                 putBoolean(Const.AdConst.permissionNav, true)
                 putLong(Const.AdConst.CLICK_TIME, 0L)
@@ -127,30 +125,28 @@ object AdManager {
         adPlace.forEach out@{place->
             when (place) {
                 in listOf(Const.AdConst.AD_START, Const.AdConst.AD_INSERT) -> {
-                    if (fullPoolPool.any { it.place == place }){
+                    if (fullAdPool.any { it.place == place }){
                         return@out
                     }
                 }
                 in listOf(Const.AdConst.AD_OTHER,Const.AdConst.AD_TEXT,Const.AdConst.AD_INITIAL) -> {
-                    if (smallPoolPool.any { it.place == place }){
+                    if (smallAdPool.any { it.place == place }){
                         return@out
                     }
                 }
             }
-
-
             mAdConfigMap.let {
                 if (it[place]?.openBtn == true){
                     loadAdInstancePlace(it[place]!!,place)
                 }else{
                     Log.d(TAG, "$place 广告位关闭 不请求")
-                    if (skipTag.contains(Const.AdConst.AD_TEXT).not() && place == Const.AdConst.AD_TEXT) {
-                        skipTag.add(Const.AdConst.AD_TEXT)
-                        skipLiveData.postValue(skipTag)
+                    if (jumpTag.contains(Const.AdConst.AD_TEXT).not() && place == Const.AdConst.AD_TEXT) {
+                        jumpTag.add(Const.AdConst.AD_TEXT)
+                        jumpLiveData.postValue(jumpTag)
                     }
-                    if (skipTag.contains(Const.AdConst.AD_START).not() && place == Const.AdConst.AD_START) {
-                        skipTag.add(Const.AdConst.AD_START)
-                        skipLiveData.postValue(skipTag)
+                    if (jumpTag.contains(Const.AdConst.AD_START).not() && place == Const.AdConst.AD_START) {
+                        jumpTag.add(Const.AdConst.AD_START)
+                        jumpLiveData.postValue(jumpTag)
                     }
                 }
             }
@@ -167,11 +163,11 @@ object AdManager {
         adWrapper.type = adWrapper.innerAdList[index].advFormat
         adWrapper.weight = adWrapper.innerAdList[index].adv_scale
 
-        if (adWrapper.type == Const.AdConst.TYPE_NAV && permissionNav.not()) {
+        if (adWrapper.type == Const.AdConst.TYPE_NAV && navPermission.not()) {
             Log.d(TAG, "原生限制---->不请求 ")
-            if (skipTag.contains(Const.AdConst.AD_TEXT).not() && place == Const.AdConst.AD_TEXT) {
-                skipTag.add(Const.AdConst.AD_TEXT)
-                skipLiveData.postValue(skipTag)
+            if (jumpTag.contains(Const.AdConst.AD_TEXT).not() && place == Const.AdConst.AD_TEXT) {
+                jumpTag.add(Const.AdConst.AD_TEXT)
+                jumpLiveData.postValue(jumpTag)
             }
             return
         }
@@ -201,17 +197,17 @@ object AdManager {
 
     private fun loadOpenAdInstance(index: Int, place: String ,adWrapper: AdWrapper) {
         OpenAd().apply {
-            setMyAdCallBack(object :AdCallBack{
+            setAdCallBack(object :AdCallBack{
                 override fun onLoadSuccess(adInstance: Any) {
                     fillEvent(adWrapper, place)
 
                     adWrapper.setAdInstance(adInstance)
-                    fullPoolPool.add(adWrapper)
-                    Log.d(TAG,"$place 请求成功 全屏广告缓存池里数量:${fullPoolPool.size}, 权重:${adWrapper.weight}, index:${index},hashCode:" + adInstance.hashCode())
+                    fullAdPool.add(adWrapper)
+                    Log.d(TAG,"$place 请求成功 全屏广告缓存池里数量:${fullAdPool.size}, 权重:${adWrapper.weight}, index:${index},hashCode:" + adInstance.hashCode())
 
-                    if (place == Const.AdConst.AD_START && skipTag.contains(Const.AdConst.AD_START).not()) {
-                        skipTag.add(Const.AdConst.AD_START)
-                        skipLiveData.postValue(skipTag)
+                    if (place == Const.AdConst.AD_START && jumpTag.contains(Const.AdConst.AD_START).not()) {
+                        jumpTag.add(Const.AdConst.AD_START)
+                        jumpLiveData.postValue(jumpTag)
                     }
                 }
 
@@ -219,9 +215,9 @@ object AdManager {
                     Log.d(TAG,"$place 请求失败 msg:$msg id:${adWrapper.id} 权重:${adWrapper.weight} ,index:${index} ")
                     adWrapper.adLoading = false
                     if (index > adWrapper.innerAdList.size - 2) {
-                        if (place == Const.AdConst.AD_START && skipTag.contains(Const.AdConst.AD_START).not()) {
-                            skipTag.add(Const.AdConst.AD_START)
-                            skipLiveData.postValue(skipTag)
+                        if (place == Const.AdConst.AD_START && jumpTag.contains(Const.AdConst.AD_START).not()) {
+                            jumpTag.add(Const.AdConst.AD_START)
+                            jumpLiveData.postValue(jumpTag)
                         }
                         return
                     }
@@ -251,26 +247,26 @@ object AdManager {
         adWrapper: AdWrapper
     ) {
         NavAd().apply {
-            setMyAdCallBack(object :AdCallBack{
+            setAdCallBack(object :AdCallBack{
                 override fun onLoadSuccess(adInstance: Any) {
                     fillEvent(adWrapper,place)
 
                     adWrapper.setAdInstance(adInstance)
-                    smallPoolPool.add(adWrapper)
-                    Log.d(TAG,"$place 请求成功 小屏广告缓存池里数量:${smallPoolPool.size}, 权重:${adWrapper.weight}, index:${index},hashCode:" + adInstance.hashCode())
+                    smallAdPool.add(adWrapper)
+                    Log.d(TAG,"$place 请求成功 小屏广告缓存池里数量:${smallAdPool.size}, 权重:${adWrapper.weight}, index:${index},hashCode:" + adInstance.hashCode())
 
                     if (needShowNav && App.isBackground.not()) {
                         nativeAdCallMap[place]?.let {
                             it.getNavAdFromPool(adWrapper)
-                            smallPoolPool.remove(adWrapper)
+                            smallAdPool.remove(adWrapper)
                             clearNativeCallBack()
                         }
                         return
                     }
 
-                    if (place == Const.AdConst.AD_TEXT && skipTag.contains(Const.AdConst.AD_TEXT).not()) {
-                        skipTag.add(Const.AdConst.AD_TEXT)
-                        skipLiveData.postValue(skipTag)
+                    if (place == Const.AdConst.AD_TEXT && jumpTag.contains(Const.AdConst.AD_TEXT).not()) {
+                        jumpTag.add(Const.AdConst.AD_TEXT)
+                        jumpLiveData.postValue(jumpTag)
                     }
                 }
 
@@ -278,9 +274,9 @@ object AdManager {
                     Log.d(TAG,"$place 请求失败 msg:$msg id:${adWrapper.id} 权重:${adWrapper.weight} ,index:${index} ")
                     adWrapper.adLoading = false
                     if (index > adWrapper.innerAdList.size - 2) {
-                        if (place == Const.AdConst.AD_TEXT && skipTag.contains(Const.AdConst.AD_TEXT).not()) {
-                            skipTag.add(Const.AdConst.AD_TEXT)
-                            skipLiveData.postValue(skipTag)
+                        if (place == Const.AdConst.AD_TEXT && jumpTag.contains(Const.AdConst.AD_TEXT).not()) {
+                            jumpTag.add(Const.AdConst.AD_TEXT)
+                            jumpLiveData.postValue(jumpTag)
                         }
                         return
                     }
@@ -304,8 +300,8 @@ object AdManager {
                         putLong(Const.AdConst.CLICK_TIME, System.currentTimeMillis())
                     }
                     if (nowClickCount >= navClickCount) {
-                        permissionNav = false
-                        Repository.sharedPreferences.edit { putBoolean(Const.AdConst.permissionNav, permissionNav) }
+                        navPermission = false
+                        Repository.sharedPreferences.edit { putBoolean(Const.AdConst.permissionNav, navPermission) }
                     }
 
                 }
@@ -316,16 +312,16 @@ object AdManager {
 
     private fun loadIntAdInstance(index: Int,place: String, adWrapper: AdWrapper) {
         IntAd().apply {
-            setMyAdCallBack(object : AdCallBack {
+            setAdCallBack(object : AdCallBack {
                 override fun onLoadSuccess(adInstance: Any) {
                     fillEvent(adWrapper,place)
 
                     adWrapper.setAdInstance(adInstance)
-                    fullPoolPool.add(adWrapper)
-                    Log.d(TAG,"$place 请求成功 全屏广告缓存池里数量:${fullPoolPool.size}, 权重:${adWrapper.weight}, index:${index},hashCode:" + adInstance.hashCode())
-                    if (place == Const.AdConst.AD_START && skipTag.contains(Const.AdConst.AD_START).not()) {
-                        skipTag.add(Const.AdConst.AD_START)
-                        skipLiveData.postValue(skipTag)
+                    fullAdPool.add(adWrapper)
+                    Log.d(TAG,"$place 请求成功 全屏广告缓存池里数量:${fullAdPool.size}, 权重:${adWrapper.weight}, index:${index},hashCode:" + adInstance.hashCode())
+                    if (place == Const.AdConst.AD_START && jumpTag.contains(Const.AdConst.AD_START).not()) {
+                        jumpTag.add(Const.AdConst.AD_START)
+                        jumpLiveData.postValue(jumpTag)
                     }
                 }
 
@@ -333,11 +329,11 @@ object AdManager {
                     Log.d(TAG,"$place 请求失败 msg:$msg id:${adWrapper.id} 权重:${adWrapper.weight} ,index:${index} ")
                     adWrapper.adLoading = false
                     if (index > adWrapper.innerAdList.size - 2) {
-                        if (place == Const.AdConst.AD_START && skipTag.contains(Const.AdConst.AD_START)
+                        if (place == Const.AdConst.AD_START && jumpTag.contains(Const.AdConst.AD_START)
                                 .not()
                         ) {
-                            skipTag.add(Const.AdConst.AD_START)
-                            skipLiveData.postValue(skipTag)
+                            jumpTag.add(Const.AdConst.AD_START)
+                            jumpLiveData.postValue(jumpTag)
                         }
                         return
                     }
@@ -385,7 +381,7 @@ object AdManager {
             }
 
             val isSmallAdConst = adLocation in listOf(Const.AdConst.AD_TEXT, Const.AdConst.AD_OTHER,Const.AdConst.AD_INITIAL)
-            val pool = if (!isSmallAdConst) fullPoolPool else smallPoolPool
+            val pool = if (!isSmallAdConst) fullAdPool else smallAdPool
             needShowNav = false
 
             if (pool.none { it.place == adLocation }) {
@@ -402,7 +398,7 @@ object AdManager {
             }
 
             if (!isSmallAdConst) {
-                val sortList = fullPoolPool.sortedByDescending { it.weight }
+                val sortList = fullAdPool.sortedByDescending { it.weight }
                 if (sortList.isEmpty()) {
                     intAdCallBack.getIntAdFromPool(null)
                     return
@@ -415,38 +411,38 @@ object AdManager {
 
                     if (sortList.size == 1) {
                         intAdCallBack.getIntAdFromPool(it)
-                        fullPoolPool.remove(it)
+                        fullAdPool.remove(it)
                         return
                     }
 
                     if (it.weight > lowAdWeight) {
                         intAdCallBack.getIntAdFromPool(it)
-                        fullPoolPool.remove(it)
+                        fullAdPool.remove(it)
                         return
                     }
                 }
 
-                val adWrapper: AdWrapper? = fullPoolPool.find { it.place == adLocation }
+                val adWrapper: AdWrapper? = fullAdPool.find { it.place == adLocation }
                 adWrapper?.let {
                     intAdCallBack.getIntAdFromPool(it)
-                    fullPoolPool.remove(it)
+                    fullAdPool.remove(it)
                     return
                 }
                 intAdCallBack.getIntAdFromPool(null)
             } else {
-                val sortList = smallPoolPool.sortedByDescending { it.weight }
+                val sortList = smallAdPool.sortedByDescending { it.weight }
                 val lowAdWeight = sortList.last().weight
                 sortList.forEach {
                     if (it.weight > lowAdWeight) {
-                        smallPoolPool.remove(it)
+                        smallAdPool.remove(it)
                         nativeAdCallMap[adLocation]?.getNavAdFromPool(it)
                         return
                     }
                 }
 
-                val adWrapper: AdWrapper? = smallPoolPool.find { it.place == adLocation }
+                val adWrapper: AdWrapper? = smallAdPool.find { it.place == adLocation }
                 adWrapper?.let {
-                    smallPoolPool.remove(it)
+                    smallAdPool.remove(it)
                     nativeAdCallMap[adLocation]?.getNavAdFromPool(it)
                     return
                 }
@@ -464,13 +460,13 @@ object AdManager {
     }
 
     private fun clearSkipTag() {
-        skipTag.clear()
-        if (fullPoolPool.any { it.place == Const.AdConst.AD_START}){
-            skipTag.add(Const.AdConst.AD_START)
+        jumpTag.clear()
+        if (fullAdPool.any { it.place == Const.AdConst.AD_START}){
+            jumpTag.add(Const.AdConst.AD_START)
         }
 
-        if (smallPoolPool.any { it.place == Const.AdConst.AD_TEXT }){
-            skipTag.add(Const.AdConst.AD_TEXT)
+        if (smallAdPool.any { it.place == Const.AdConst.AD_TEXT }){
+            jumpTag.add(Const.AdConst.AD_TEXT)
         }
     }
 

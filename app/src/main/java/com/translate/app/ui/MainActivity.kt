@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -54,33 +56,25 @@ import com.translate.app.ads.callback.IntAdCallback
 import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.ads.getMoringTime
 import com.translate.app.repository.Repository
+import com.translate.app.repository.bean.LanguageBeanItem
 import com.translate.app.ui.languagePage.LanguageActivity
 import com.translate.app.ui.ocrPage.CaptureActivity
 import com.translate.app.ui.ocrPage.OCRActivity
 import com.translate.app.ui.translatePage.TranslateActivity
+import com.translate.app.ui.weight.TriangleShape
+import com.translate.app.ui.weight.BigNavView
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
+import com.translate.app.ui.weight.RateDialog
 import com.translate.app.ui.weight.click
 
 
-class MainActivity : BaseActivity(),NavAdCallback,IntAdCallback {
+class MainActivity : BaseActivity(),NavAdCallback {
 
     private val ABLUM_TAG = 0
     private val CAPTURE_TAG = 1
     private val TRANSLATE_TAG = 2
     private var clickTag = TRANSLATE_TAG
-    private var images = ArrayList<Image>()
-    private val launcher = registerImagePicker {
-        if (it.isNullOrEmpty()) {
-            return@registerImagePicker
-        }
-        images = it
-        val image = images.first()
-
-        val intent = Intent(this, OCRActivity::class.java)
-        intent.putExtra("PATH", "${image.uri.path}")
-        startActivity(intent)
-    }
     private var showPopupWindowState by mutableStateOf(value = false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,7 +95,9 @@ class MainActivity : BaseActivity(),NavAdCallback,IntAdCallback {
                 .fillMaxSize()
                 .click {
                     showPopupWindowState = false
-                }){
+                })
+            {
+
                 Column(modifier = Modifier
                     .statusBarsPadding()
                     .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -142,11 +138,17 @@ class MainActivity : BaseActivity(),NavAdCallback,IntAdCallback {
                         )
                     }
 
-                    adWrapper.value?.let {
+                    if (adWrapper.value == null) {
+                        BigNavView(
+                            modifier = Modifier
+                                .padding(top = 20.dp,start = 10.dp, end = 10.dp)
+                        )
+                    }else{
                         NativeAdsView(
-                            mAdInstance = it, modifier = Modifier
+                            mAdInstance = adWrapper.value!!, modifier = Modifier
                                 .padding(top = 20.dp)
                                 .padding(horizontal = 20.dp)
+                                .shadow(elevation = 1.dp, ambientColor = Color.Black)
                         )
                     }
                 }
@@ -198,17 +200,8 @@ class MainActivity : BaseActivity(),NavAdCallback,IntAdCallback {
     }
 
     private fun spacerAdCount() {
-        if (Repository.sharedPreferences.getInt(Const.TRANSLATE_COUNT,0) == 1){
-            showIntAd()
-        }else{
-            jumpNextActivity()
-        }
-        Repository.sharedPreferences.apply {
-            var count = getInt(Const.TRANSLATE_COUNT, 0)
-            edit {
-                putInt(Const.TRANSLATE_COUNT,++count)
-            }
-        }
+        jumpNextActivity()
+        showInt()
     }
 
     @Composable
@@ -217,105 +210,48 @@ class MainActivity : BaseActivity(),NavAdCallback,IntAdCallback {
             Column(
                 modifier = modifier,
             ) {
-                Row(modifier = Modifier.height(60.dp), verticalAlignment = Alignment.CenterVertically) {
-                    CoilImage(modifier = Modifier
-                        .padding(end = 7.dp)
-                        .size(24.dp), data = R.mipmap.terms)
+                Row(
+                    modifier = Modifier
+                        .height(60.dp)
+                        .click {
+                            navActivity<WebActivity>()
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CoilImage(
+                        modifier = Modifier
+                            .padding(end = 7.dp)
+                            .size(24.dp), data = R.mipmap.terms
+                    )
                     Text(text = "Terms of Service", fontSize = 16.sp)
                 }
-                Row(modifier = Modifier.height(60.dp), verticalAlignment = Alignment.CenterVertically) {
-                    CoilImage(modifier = Modifier
-                        .padding(end = 7.dp)
-                        .size(24.dp), data = R.mipmap.privacy)
+                Row(modifier = Modifier
+                    .height(60.dp)
+                    .click {
+                           navActivity<WebActivity>()
+                    }, verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CoilImage(
+                        modifier = Modifier
+                            .padding(end = 7.dp)
+                            .size(24.dp), data = R.mipmap.privacy
+                    )
                     Text(text = "Privacy Policy", fontSize = 16.sp)
                 }
             }
         }
     }
 
-    private fun start() {
-        images.clear()
-        val folderMode = false
-        val multiSelectMode = false
-        val cameraMode = false
-        val showCamera = false
-        val selectAllEnabled = false
-        val unselectAllEnabled = false
-        val showNumberIndicator = false
-        val enableImageTransition = false
-
-        val config = ImagePickerConfig(
-            clazz = LanguageActivity::class.java,
-            isCameraMode = cameraMode,
-            isMultiSelectMode = multiSelectMode,
-            isFolderMode = folderMode,
-            isShowCamera = showCamera,
-            isSelectAllEnabled = selectAllEnabled,
-            isUnselectAllEnabled = unselectAllEnabled,
-            isImageTransitionEnabled = enableImageTransition,
-            selectedIndicatorType = if (showNumberIndicator) IndicatorType.NUMBER else IndicatorType.CHECK_MARK,
-            limitSize = 100,
-            rootDirectory = RootDirectory.DCIM,
-            subDirectory = "Image Picker",
-            folderGridCount = GridCount(2, 4),
-            imageGridCount = GridCount(3, 5),
-            selectedImages = images,
-            customColor = CustomColor(
-                background = "#000000",
-                statusBar = "#000000",
-                toolbar = "#212121",
-                toolbarTitle = "#FFFFFF",
-                toolbarIcon = "#FFFFFF",
-                doneButtonTitle = "#FFFFFF",
-                snackBarBackground = "#323232",
-                snackBarMessage = "#FFFFFF",
-                snackBarButtonTitle = "#4CAF50",
-                loadingIndicator = "#757575",
-                selectedImageIndicator = "#1976D2"
-            ),
-            customMessage = CustomMessage(
-                reachLimitSize = "You can only select up to 10 images.",
-                cameraError = "Unable to open camera.",
-                noCamera = "Your device has no camera.",
-                noImage = "No image found.",
-                noPhotoAccessPermission = "Please allow permission to access photos and media.",
-                noCameraPermission = "Please allow permission to access camera."
-            ),
-        )
-
-        launcher.launch(config,ImagePickerActivity::class.java)
-    }
-
     override fun onStart() {
         super.onStart()
-        if (App.isBackground.not()) {
+        if (App.isBackground.not() && canShowNav) {
             AdManager.setNativeCallBack(this, Const.AdConst.AD_TEXT)
             AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
         }
     }
 
-
-
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
         this.adWrapper.value = adWrapper.getAdInstance() as NativeAd
-    }
-
-
-    private fun showIntAd() {
-        AdManager.setIntAdCallBack(this)
-        AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
-    }
-
-    override fun getIntAdFromPool(adWrapper: AdWrapper?) {
-        adWrapper?.let {
-            it.showAdInstance(this)
-            return
-        }
-        jumpNextActivity()
-    }
-
-    override fun onCloseIntAd() {
-        jumpNextActivity()
     }
 
     private fun jumpNextActivity() {
@@ -341,7 +277,7 @@ class MainActivity : BaseActivity(),NavAdCallback,IntAdCallback {
 }
 
 @Composable
-fun TopBar() {
+fun TopBar(changeLanguage:()->Unit = {}) {
     val context = LocalContext.current as BaseActivity
     Box(
         modifier = Modifier
@@ -388,7 +324,16 @@ fun TopBar() {
             CoilImage(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(34.dp, 25.dp),
+                    .size(34.dp, 25.dp)
+                    .click {
+                        var temp: LanguageBeanItem?
+                        if (Repository.sourceLanguage != null && Repository.targetLanguage != null) {
+                            temp = Repository.sourceLanguage
+                            Repository.sourceLanguage = Repository.targetLanguage
+                            Repository.targetLanguage = temp
+                        }
+                        changeLanguage.invoke()
+                    },
                 data = R.mipmap.home_cut
             )
             Row(

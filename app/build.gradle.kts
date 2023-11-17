@@ -38,6 +38,7 @@ android {
         buildConfigField("String", "base_url", "\"${prop.getProperty("baseUrl")}\"")
         buildConfigField("String", "config_url", "\"${prop.getProperty("configUrl")}\"")
         buildConfigField("String", "translate_url", "\"${prop.getProperty("translateUrl")}\"")
+        buildConfigField("String", "privacy_url", "\"${prop.getProperty("privacyUrl")}\"")
 
         buildConfigField("String", "adjust_token", "\"${prop.getProperty("adjustToken")}\"")
         buildConfigField("String", "adjust_code", "\"${prop.getProperty("adjustCode")}\"")
@@ -156,14 +157,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.5.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
-//    implementation(project(mapOf("path" to ":cryCore")))
     implementation(project(mapOf("path" to ":imagepicker")))
-
-    // To recognize Latin script
-    implementation("com.google.mlkit:text-recognition:16.0.0")
-    // To recognize Devanagari script
-    implementation("com.google.mlkit:text-recognition-devanagari:16.0.0")
-
 
     implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
     implementation("com.google.firebase:firebase-crashlytics-ktx")

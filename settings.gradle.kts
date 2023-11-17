@@ -13,7 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MF04"
 include(":app")
-include(":cryCore")
 include(":imagepicker")

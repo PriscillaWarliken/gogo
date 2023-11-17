@@ -176,7 +176,12 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
 
     private fun setupViews() {
         binding.backIv.setOnClickListener {
-            finish()
+            if (config.isfinish) {
+                finish()
+            }else{
+                startActivity(Intent(this,MainActivity::class.java))
+            }
+            BaseActivity.canShowNav = true
         }
 
         binding.sourceLanguage.setOnClickListener {
@@ -208,11 +213,12 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
     }
 
     private fun handleBackPress() {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            supportFragmentManager.popBackStackImmediate()
-        } else {
-            finishPickImages(config.selectedImages)
+        if (config.isfinish) {
+            finish()
+        }else{
+            startActivity(Intent(this,MainActivity::class.java))
         }
+        BaseActivity.canShowNav = true
     }
 
     private fun fetchDataWithPermission() {
@@ -425,6 +431,7 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
     }
 
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
+        binding.adLayout.removeAllViews()
         adWrapper.showAdInstance(this,binding.adLayout,false)
     }
 }

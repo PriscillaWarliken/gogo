@@ -12,9 +12,13 @@
         android:icon="@mipmap/logo"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/logo"
-        android:theme="@style/Theme.MF04"
+        android:theme="@style/Theme.TranslateTheme"
         android:networkSecurityConfig="@xml/network_security"
         tools:targetApi="31">
+
+        <activity android:name="com.google.android.gms.ads.AdActivity"
+            android:theme="@style/Theme.TranslateTheme"
+            tools:replace="android:theme"/>
 
         <activity android:name=".ui.StartActivity"
             android:exported="true"
@@ -30,11 +34,13 @@
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.MF04"
+            android:theme="@style/Theme.TranslateTheme"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"/>
 
-        </activity>
+        <activity android:name=".ui.WebActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
 
         <activity android:name=".ui.ImagePickerActivity"
             android:exported="false"
@@ -55,6 +61,7 @@
 
         <activity android:name=".ui.ocrPage.ResultActivity"
             android:exported="false"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"/>
 
         <activity android:name=".ui.translatePage.TranslateActivity"

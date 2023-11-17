@@ -45,7 +45,10 @@ import com.google.gson.JsonArray
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
 import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
+import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
+import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.translate.app.App
 import com.translate.app.Const
@@ -60,6 +63,7 @@ import com.translate.app.ui.BaseActivity
 import com.translate.app.ui.pointLog
 import com.translate.app.ui.weight.CoilImage
 import com.translate.app.ui.weight.NativeAdsView
+import com.translate.app.ui.weight.SmallNavView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -77,6 +81,10 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
     companion object{
         var resultBitmap: Bitmap? = null
         var resultStr:String = ""
+
+        fun clearResultStr() {
+            resultStr = ""
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,36 +109,37 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
                             color = Color.White,
                             shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
                         ),
-                    bottomView = {
-                        val animateValue by rememberInfiniteTransition(label = "").animateFloat(
-                            initialValue = 0f,
-                            targetValue = 1f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(durationMillis = 1000, easing = LinearEasing),
-                                repeatMode = RepeatMode.Restart
-                            ), label = ""
-                        )
-                        Box(modifier = Modifier
-                            .padding(bottom = 50.dp)
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth(0.9f)
-                            .height(15.dp)
+                    )
+
+                val animateValue by rememberInfiniteTransition(label = "").animateFloat(
+                    initialValue = 0f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 1000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ), label = ""
+                )
+                Box(modifier = Modifier
+                    .padding(bottom = 50.dp)
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(0.9f)
+                    .height(15.dp)
+                    .background(
+                        color = Color(0xFFEEEFEF),
+                        shape = RoundedCornerShape(90.dp)
+                    )
+                ){
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth(animateValue)
+                            .fillMaxHeight()
                             .background(
-                                color = Color(0xFFEEEFEF),
+                                color = Color(0xFF6ACAFF),
                                 shape = RoundedCornerShape(90.dp)
                             )
-                        ){
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth(animateValue)
-                                    .fillMaxHeight()
-                                    .background(
-                                        color = Color(0xFF6ACAFF),
-                                        shape = RoundedCornerShape(90.dp)
-                                    )
-                            )
-                        }
-                    })
+                    )
+                }
+
                 val composition by rememberLottieComposition(LottieCompositionSpec.Asset("anim/扫描.json"))
                 LottieAnimation(
                     composition = composition,
@@ -141,26 +150,43 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
                     contentScale = ContentScale.None
                 )
 
-                adWrapper.value?.let {
+                if (adWrapper.value == null) {
+                    SmallNavView(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 50.dp)
+                            .padding(horizontal = 20.dp)
+                    )
+                }else{
                     NativeAdsView(
-                        isBig = false, mAdInstance = it, modifier = Modifier
+                        isBig = false, mAdInstance = adWrapper.value!!, modifier = Modifier
                             .align(Alignment.TopCenter)
                             .padding(top = 50.dp)
                             .padding(horizontal = 20.dp)
                     )
                 }
+
             }
         }
         startRecognizer(path)
     }
     private fun startRecognizer(path: String) {
+        clearResultStr()
         val startTime = System.currentTimeMillis()
         val recognizer = when (Repository.sourceLanguage!!.language) {
+            "zh-CN","zh-TW" -> {
+                TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
+            }
             "hi"->{
                 TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
             }
-          else->{
-              TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+            "ja"->{
+                TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
+            }
+            "ko"->{
+                TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
+            }else->{
+                TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
             }
         }
         val image: InputImage
@@ -186,8 +212,9 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
                                 delay(3000L - differTime)
                             }
                             resultBitmap = bmp
-                            navActivity<ResultActivity>()
-                            finish()
+                            withContext(Dispatchers.Main){
+                                showIntAd()
+                            }
                             return@launch
                         }
                         val degress = result.textBlocks[0].lines[0].angle
@@ -198,12 +225,11 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
                             draw(
                                 bmp,
                                 resultArr,
-                                android.graphics.Color.parseColor("#FFFFFFFF"),
                                 block,
                                 canvas,
                                 Paint().apply {
                                     this.color = android.graphics.Color.parseColor("#FFFFFFFF")
-                                },android.graphics.Color.parseColor("#FFFFFFFF"),
+                                },
                                 degress
                             )
                         }
@@ -223,8 +249,9 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
                         if (differTime < 3000L) {
                             delay(3000L - differTime)
                         }
-                        navActivity<ResultActivity>()
-                        finish()
+                        withContext(Dispatchers.Main){
+                            showIntAd()
+                        }
                     }
                 }
         } catch (e: IOException) {
@@ -261,11 +288,9 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
     private suspend fun draw(
         bmp: Bitmap,
         resultArr: List<Data>?,
-        bgcolor: Int,
         textBlock: Text.TextBlock,
         canvas: Canvas,
         paint: Paint,
-        textColor: Int,
         angle: Float = 0f
     ) = suspendCancellableCoroutine<Boolean> { res ->
 
@@ -392,8 +417,8 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
     override fun onStart() {
         super.onStart()
         if (App.isBackground.not()) {
-            AdManager.setNativeCallBack(this, Const.AdConst.AD_TEXT)
-            AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
+            AdManager.setNativeCallBack(this, Const.AdConst.AD_OTHER)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_OTHER)
         }
     }
 
@@ -406,13 +431,12 @@ class OCRActivity : BaseActivity(),IntAdCallback,NavAdCallback {
 fun PreViewImageLayout(
     path: Any,
     modifier: Modifier,
-    bottomView:@Composable ()->Unit={},
     shareView:@Composable ()->Unit={},
 ) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
-                .padding(top = 21.dp, bottom = 20.dp)
+                .padding(top = 11.dp, bottom = 20.dp)
                 .fillMaxWidth(0.9f)
                 .height(460.dp)
         ){
@@ -420,8 +444,9 @@ fun PreViewImageLayout(
                 data = path,
                 modifier = Modifier.fillMaxSize()
             )
-            shareView()
+            Box(modifier = Modifier.align(Alignment.BottomCenter)){
+                shareView()
+            }
         }
-        bottomView()
     }
 }

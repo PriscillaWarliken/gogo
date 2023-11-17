@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
@@ -38,6 +42,7 @@ class PrivacyActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         pointLog("Privacy_And","隐私征求页曝光")
         setContent {
+            BackHandler(enabled = true) {}
             Column(
                 modifier = Modifier
                     .statusBarsPadding()
@@ -66,10 +71,20 @@ class PrivacyActivity : BaseActivity() {
                 )
 
                 Text(
-                    text = "Click \"Start\" to start the experience\nand accept our Privacy Policy",
+                    text = buildAnnotatedString {
+                        withStyle(SpanStyle(color = Color(0xFF333333), fontSize = 14.sp)){
+                            append("Click \"Start\" to start the experience\nand accept our")
+                        }
+                        withStyle(SpanStyle(color = Color(0xFF58B9EE), fontSize = 14.sp)){
+                            append(" Privacy Policy")
+                        }
+                    },
                     fontSize = 14.sp,
                     modifier = Modifier
-                        .padding(top = 40.dp),
+                        .padding(top = 40.dp)
+                        .click {
+                            navActivity<WebActivity>()
+                        },
                     textAlign = TextAlign.Center,
                 )
 

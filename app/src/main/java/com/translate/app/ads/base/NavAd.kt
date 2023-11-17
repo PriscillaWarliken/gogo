@@ -1,7 +1,9 @@
 package com.translate.app.ads.base
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -18,22 +20,22 @@ class NavAd:BaseAd() {
     override fun loadAd(adId: String) {
         val loader = AdLoader.Builder(App.context, adId)
             .forNativeAd { nativeAd ->
-                getMyAdCallBack().onLoadSuccess(nativeAd)
+                getAdCallBack().onLoadSuccess(nativeAd)
             }
             .withAdListener(object : AdListener() {
                 override fun onAdClicked() {
                     super.onAdClicked()
-                    getMyAdCallBack().onClick()
+                    getAdCallBack().onClick()
                 }
 
                 override fun onAdFailedToLoad(p0: LoadAdError) {
                     super.onAdFailedToLoad(p0)
-                    getMyAdCallBack().onLoadFail(p0.code.toString(), p0.message)
+                    getAdCallBack().onLoadFail(p0.code.toString(), p0.message)
                 }
 
                 override fun onAdImpression() {
                     super.onAdImpression()
-                    getMyAdCallBack().onShow()
+                    getAdCallBack().onShow()
                 }
             })
         loader.build().loadAd(AdRequest.Builder().build())
@@ -51,20 +53,30 @@ class NavAd:BaseAd() {
                 val adContent = adView.findViewById<TextView>(R.id.ad_content)
                 val adIcon = adView.findViewById<ImageView>(R.id.ad_icon)
                 val install = adView.findViewById<TextView>(R.id.ad_call)
+                adView.findViewById<TextView>(R.id.tag_tv).visibility = View.VISIBLE
 
                 adTitle.text = nativeAd.headline
                 adContent.text = nativeAd.body
-                adIcon.setImageDrawable(nativeAd.icon!!.drawable)
+                nativeAd.icon?.let {
+                    adIcon.setImageDrawable(it.drawable)
+                    adIcon.setBackgroundColor(Color.TRANSPARENT)
+                }
+
                 install.text = nativeAd.callToAction
 
                 adView.headlineView = adTitle
                 adView.bodyView = adContent
                 adView.iconView = adIcon
                 adView.callToActionView = install
+
+                adTitle.setBackgroundColor(Color.TRANSPARENT)
+                adContent.setBackgroundColor(Color.TRANSPARENT)
+                install.setBackgroundResource(R.drawable.ad_install)
                 adView.setNativeAd(nativeAd)
                 viewGroup.removeAllViews()
                 viewGroup.addView(adView)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
@@ -77,20 +89,31 @@ class NavAd:BaseAd() {
                 val adIcon = adView.findViewById<ImageView>(R.id.ad_icon)
                 val install = adView.findViewById<TextView>(R.id.ad_call)
                 adView.mediaView = adView.findViewById(R.id.media_view)
+                adView.findViewById<TextView>(R.id.tag_tv).visibility = View.VISIBLE
+
 
                 adTitle.text = nativeAd.headline
                 adContent.text = nativeAd.body
-                adIcon.setImageDrawable(nativeAd.icon!!.drawable)
+                nativeAd.icon?.let {
+                    adIcon.setImageDrawable(it.drawable)
+                    adIcon.setBackgroundColor(Color.TRANSPARENT)
+                }
                 install.text = nativeAd.callToAction
 
                 adView.headlineView = adTitle
                 adView.bodyView = adContent
                 adView.iconView = adIcon
                 adView.callToActionView = install
+
+                adTitle.setBackgroundColor(Color.TRANSPARENT)
+                adContent.setBackgroundColor(Color.TRANSPARENT)
+                install.setBackgroundResource(R.drawable.ad_install)
                 adView.setNativeAd(nativeAd)
                 viewGroup.removeAllViews()
                 viewGroup.addView(adView)
-            } catch (_: Exception) { }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }

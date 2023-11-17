@@ -28,6 +28,7 @@ object Const {
         }
     }
 
+    const val START_TIME = "START_TIME"
     const val TARGET_LANGUAGE = "TARGET_LANGUAGE"
     const val SOURCE_LANGUAGE = "SOURCE_LANGUAGE"
     const val RECENT_LANGUAGE = "RECENT_LANGUAGE"
