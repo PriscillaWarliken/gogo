@@ -40,6 +40,7 @@ object Const {
     const val RESULT_COUNT = "RESULT_COUNT"
     const val SHOW_RATE = "SHOW_RATE"
     const val ADJUST_INSTALL = "ADJUST_INSTALL"
+    const val OPEN_AD = "OPEN_AD"
 
     val pName: String get() = App.context.packageName
 

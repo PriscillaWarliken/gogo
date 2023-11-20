@@ -37,6 +37,7 @@ import com.translate.app.App
 import com.translate.app.Const
 import com.translate.app.ads.AdManager
 import com.translate.app.ads.base.AdWrapper
+import com.translate.app.ads.callback.IntAdCallback
 import com.translate.app.ads.callback.NavAdCallback
 import com.translate.app.repository.Repository
 import com.translate.app.repository.bean.LanguageBeanItem
@@ -44,7 +45,7 @@ import com.translate.app.ui.languagePage.LanguageActivity
 import com.translate.app.ui.ocrPage.ResultActivity
 
 class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageSelectListener,
-    NavAdCallback {
+    NavAdCallback,IntAdCallback {
 
     companion object{
         var sourceLanguage = ""
@@ -180,6 +181,7 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
                 finish()
             }else{
                 startActivity(Intent(this,MainActivity::class.java))
+                showIntAd()
             }
             BaseActivity.canShowNav = true
         }
@@ -226,6 +228,7 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
             finish()
         }else{
             startActivity(Intent(this,MainActivity::class.java))
+            showIntAd()
         }
         BaseActivity.canShowNav = true
     }
@@ -443,4 +446,21 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
         binding.adLayout.removeAllViews()
         adWrapper.showAdInstance(this,binding.adLayout,false)
     }
+
+    private fun showIntAd() {
+        if (Repository.extraAd_button.not()) {
+            return
+        }
+        AdManager.setIntAdCallBack(this)
+        AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
+    }
+
+    override fun getIntAdFromPool(adWrapper: AdWrapper?) {
+        adWrapper?.let {
+            it.showAdInstance(this)
+            return
+        }
+    }
+
+    override fun onCloseIntAd() {}
 }

@@ -11,7 +11,10 @@ data class Resp(
     val adArrays: List<AdArray>,
     val bigBig:Int,
     val noNO:Int,
-    val pullMin:Int
+    val pullMin:Int,
+    val extraAd_button:Boolean,
+    val firstAdOpen_button:Boolean,
+    val guide_button:Boolean
 )
 
 data class AdArray(

@@ -50,11 +50,20 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
 
     val viewModel by viewModels<TranslateViewModel>()
     private var showAnimState by mutableStateOf(value = false)
+    private var clickTag = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pointLog("NoText_And","文本输入 无 数据曝光")
         setContent {
+            BackHandler(enabled = true) {
+                if (Repository.extraAd_button.not()) {
+                    finish()
+                    return@BackHandler
+                }
+                clickTag = 2
+                showIntAd()
+            }
             val focusManager = LocalFocusManager.current
             Box(
                 modifier = Modifier
@@ -68,7 +77,14 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                             focusManager.clearFocus()
                         },
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                    TopBar()
+                    TopBar(finishBlock = {
+                        if (Repository.extraAd_button.not()) {
+                            finish()
+                            return@TopBar
+                        }
+                        clickTag = 2
+                        showIntAd()
+                    })
 
                     TranslateEditView(
                         text = "",
@@ -76,7 +92,10 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                         modifier = Modifier
                             .size(355.dp, 414.dp)
                             .padding(start = 12.dp, end = 12.dp, top = 20.dp)
-                            .background(color = Color(0xFF4974C9),shape = RoundedCornerShape(24.dp)),
+                            .background(
+                                color = Color(0xFF4974C9),
+                                shape = RoundedCornerShape(24.dp)
+                            ),
                         onNext = { result->
                             focusManager.clearFocus()
                             showAnimState = true
@@ -91,6 +110,7 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
                                     Repository.targetLanguage!!.language
                                 )
                                 showAnimState = false
+                                clickTag = 1
                                 showIntAd()
                             }
                         }
@@ -144,11 +164,20 @@ class TranslateActivity : BaseActivity(),IntAdCallback, NavAdCallback {
             it.showAdInstance(this)
             return
         }
-        navActivity<TranslateResultActivity>()
+        if (clickTag == 1) {
+            navActivity<TranslateResultActivity>()
+        }else{
+            finish()
+        }
+
     }
 
     override fun onCloseIntAd() {
-        navActivity<TranslateResultActivity>()
+        if (clickTag == 1) {
+            navActivity<TranslateResultActivity>()
+        }else{
+            finish()
+        }
     }
 
     override fun onStart() {

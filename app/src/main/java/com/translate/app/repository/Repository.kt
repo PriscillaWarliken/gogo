@@ -31,6 +31,8 @@ object Repository {
     var targetLanguage by mutableStateOf<LanguageBeanItem?>(value = null)
     var recentLanguageList = mutableListOf<LanguageBeanItem>()
     var allLanguageList = mutableListOf<LanguageBeanItem>()
+    var extraAd_button = false
+    var firstAdOpen_button = false
 
     fun init() {
         sharedPreferences = App.context.getSharedPreferences(App.context.packageName,Context.MODE_PRIVATE)
@@ -160,6 +162,9 @@ object Repository {
                 }
                 AdManager.initAdMapConfig(map, configBean.resp.noNO)
             }
+
+            extraAd_button = configBean.resp.extraAd_button
+            firstAdOpen_button = configBean.resp.firstAdOpen_button
         }catch (e:Exception){
             e.printStackTrace()
         }

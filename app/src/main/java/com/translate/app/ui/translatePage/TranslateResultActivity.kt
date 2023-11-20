@@ -111,9 +111,11 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
                     .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                TopBar{
+                TopBar(changeLanguage = {
                     execApi()
-                }
+                }, finishBlock = {
+                    finish()
+                })
 
                 Box(modifier = Modifier.fillMaxWidth().height(92.dp)){
                     if (adWrapper.value == null) {

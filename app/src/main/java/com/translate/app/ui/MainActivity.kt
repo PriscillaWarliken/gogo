@@ -88,7 +88,10 @@ class MainActivity : BaseActivity(),NavAdCallback {
         }
         if (Repository.sharedPreferences.getBoolean(Const.HOME_EXPORT, true)) {
             pointLog("Home_And","首页曝光")
-            Repository.sharedPreferences.edit { putBoolean(Const.HOME_EXPORT,false) }
+            Repository.sharedPreferences.edit {
+                putBoolean(Const.HOME_EXPORT,false)
+                putBoolean(Const.OPEN_AD,true)
+            }
         }
         setContent {
             BackHandler(enabled = true) {}
@@ -282,7 +285,7 @@ class MainActivity : BaseActivity(),NavAdCallback {
 }
 
 @Composable
-fun TopBar(changeLanguage:()->Unit = {}) {
+fun TopBar(changeLanguage:()->Unit = {},finishBlock:()->Unit) {
     val context = LocalContext.current as BaseActivity
     Box(
         modifier = Modifier
@@ -294,7 +297,7 @@ fun TopBar(changeLanguage:()->Unit = {}) {
             .align(Alignment.CenterStart)
             .size(24.dp)
             .click {
-                context.finish()
+                finishBlock.invoke()
             }, data = R.drawable.universal_back)
 
         Box(

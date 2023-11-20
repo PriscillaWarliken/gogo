@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -67,11 +68,17 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
             val lensFacing = remember {
                 mutableStateOf(value = CameraSelector.LENS_FACING_BACK)
             }
+            BackHandler(enabled = true) {
+                showIntAd()
+            }
             Box(modifier = Modifier
                 .statusBarsPadding()
                 .fillMaxSize()){
                 Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally){
-                    TopBar()
+                    TopBar(finishBlock = {
+                        showIntAd()
+                        finish()}
+                    )
 
                     if (adWrapper.value == null) {
                         SmallNavView(modifier = Modifier
@@ -221,6 +228,14 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
         this.adWrapper.value=adWrapper.getAdInstance() as NativeAd
     }
 
+
+    private fun showIntAd() {
+        if (Repository.extraAd_button.not()) {
+            return
+        }
+        AdManager.setIntAdCallBack(this)
+        AdManager.getAdObjFromPool(Const.AdConst.AD_INSERT)
+    }
 
     companion object{
         const val REQUEST_CODE_CAPTURE = 1

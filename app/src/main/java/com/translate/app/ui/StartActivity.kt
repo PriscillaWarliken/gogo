@@ -123,8 +123,13 @@ class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
     }
 
     private fun showOpenAd() {
-        AdManager.setIntAdCallBack(this)
-        AdManager.getAdObjFromPool(Const.AdConst.AD_START)
+        if (Repository.sharedPreferences.getBoolean(Const.OPEN_AD, false) || Repository.firstAdOpen_button) {
+            AdManager.setIntAdCallBack(this)
+            AdManager.getAdObjFromPool(Const.AdConst.AD_START)
+        }else{
+            navActivity<MainActivity>()
+        }
+
     }
 
     override fun getIntAdFromPool(adWrapper: AdWrapper?) {
