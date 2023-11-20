@@ -125,7 +125,7 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                                 }
 
                             },
-                        data = R.mipmap.universal_back
+                        data = R.drawable.universal_back
                     )
 
                     MyNativeViewPlace()
@@ -160,12 +160,12 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                                             .size(22.dp)
                                             .click {
                                                 shareBitmap()
-                                            }, data = R.mipmap.share)
+                                            }, data = R.drawable.share)
                                         CoilImage(modifier = Modifier
                                             .size(22.dp)
                                             .click {
                                                 copyText()
-                                            }, data = R.mipmap.copy)
+                                            }, data = R.drawable.copy)
                                     }
                                 })
                             Row(modifier = Modifier
@@ -177,7 +177,7 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                                             navActivity<TranslateActivity>()
                                             finish()
                                             showInt()
-                                        }, data = R.mipmap.text)
+                                        }, data = R.drawable.text)
                                     Text(text = "Text", fontSize = 18.sp,color = Color.White,modifier = Modifier
                                         .padding(bottom = 16.dp)
                                         .align(Alignment.BottomCenter))
@@ -195,9 +195,9 @@ class ResultActivity : BaseActivity(),NavAdCallback {
                                                 }
                                                 showInt()
                                             }, data = if (fromCamera) {
-                                            R.mipmap.home_album
+                                            R.drawable.home_album
                                         }else{
-                                            R.mipmap.home_camera
+                                            R.drawable.home_camera
                                         }
                                     )
                                     Text(text = if (fromCamera) "Album" else "Camera", fontSize = 18.sp,color = Color.White,modifier = Modifier

@@ -47,12 +47,10 @@ class App : Application(),ActivityLifecycleCallbacks {
         registerActivityLifecycleCallbacks(this)
         Repository.init()
         coroutineScope.launch {
-            launch {
-                try {
-                    val gid = AdvertisingIdClient.getAdvertisingIdInfo(context).id.toString()
-                    Const.baseParam.addProperty("advertNum",gid)
-                } catch (_: Exception) { }
-            }
+            try {
+                val gid = AdvertisingIdClient.getAdvertisingIdInfo(context).id.toString()
+                Const.baseParam.addProperty("advertNum",gid)
+            } catch (_: Exception) { }
             launch { Repository.useCacheConfig() }
             launch { Repository.parseLanguageJson() }
         }
@@ -73,10 +71,7 @@ class App : Application(),ActivityLifecycleCallbacks {
                                 try {
                                     val event = AdjustEvent(BuildConfig.adjust_code)
                                     val referrerUrl = this@apply.installReferrer.installReferrer
-                                    event.addCallbackParameter(
-                                        BuildConfig.adjust_referrerUrl,
-                                        referrerUrl
-                                    )
+                                    event.addCallbackParameter(BuildConfig.adjust_referrerUrl, referrerUrl)
                                     Adjust.trackEvent(event)
                                     Repository.sharedPreferences.edit().putBoolean(Const.ADJUST_INSTALL, false).apply()
                                 } catch (_: Exception) { }

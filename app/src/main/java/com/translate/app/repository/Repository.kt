@@ -155,7 +155,7 @@ object Repository {
                 val map = mutableMapOf<String, AdWrapper>()
                 it.forEach { out ->
                     out.adSource[0].let {
-                        map[out.advPlace] = AdWrapper(out.advPlace,out.adOpen,out.adSource.sortedByDescending { it.adv_scale })
+                        map[out.advPlace] = AdWrapper(out.advPlace,out.adOpen,out.adSource.sortedByDescending { it.adv_scale },adType = it.advFormat)
                     }
                 }
                 AdManager.initAdMapConfig(map, configBean.resp.noNO)

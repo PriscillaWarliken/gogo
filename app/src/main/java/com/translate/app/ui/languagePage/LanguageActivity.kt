@@ -102,7 +102,7 @@ class LanguageActivity : BaseActivity(),NavAdCallback {
                     )
                     CoilImage(modifier = Modifier
                         .size(22.dp)
-                        .click { finish() }, data = R.mipmap.ic_return)
+                        .click { finish() }, data = R.drawable.ic_return)
                 }
 
                 Spacer(
@@ -245,7 +245,7 @@ class LanguageActivity : BaseActivity(),NavAdCallback {
                 CoilImage(modifier = Modifier
                     .padding(end = 18.dp)
                     .align(Alignment.CenterEnd)
-                    .size(24.dp), data = R.mipmap.selected)
+                    .size(24.dp), data = R.drawable.selected)
             }
         }
 

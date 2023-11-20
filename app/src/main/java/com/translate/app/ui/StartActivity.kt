@@ -80,7 +80,7 @@ class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
                     modifier = Modifier
                         .align(Alignment.Center)
                         .size(290.dp),
-                    data = R.mipmap.start
+                    data = R.drawable.start
                 )
                 ProgressView(modifier = Modifier
                     .padding(bottom = 130.dp)
@@ -91,7 +91,6 @@ class StartActivity : BaseActivity(), IntAdCallback,NavAdCallback {
 
             }
         }
-
 
         try {
             if (AdManager.adMapLiveData.hasActiveObservers().not()) {

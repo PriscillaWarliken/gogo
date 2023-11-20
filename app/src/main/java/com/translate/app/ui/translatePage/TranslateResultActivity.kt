@@ -172,7 +172,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
                             .click {
                                 copyText(TranslateViewModel.dstText)
 
-                            }, data = R.mipmap.home_copy
+                            }, data = R.drawable.home_copy
                     )
                 }
 
@@ -187,7 +187,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
                                 .size(155.dp, 128.dp)
                                 .click {
                                     start()
-                                }, data = R.mipmap.home_album
+                                }, data = R.drawable.home_album
                         )
                         Text(
                             text = "Album", fontSize = 18.sp, modifier = Modifier
@@ -201,7 +201,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
                                 .size(155.dp, 128.dp)
                                 .click {
                                     navActivity<CaptureActivity>()
-                                }, data = R.mipmap.home_camera
+                                }, data = R.drawable.home_camera
                         )
                         Text(
                             text = "Camera",

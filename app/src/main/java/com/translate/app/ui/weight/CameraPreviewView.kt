@@ -131,17 +131,17 @@ fun PreViewMainLayout(
                 .size(36.dp)
                 .click {
                     openAlbum.invoke()
-                }, data = R.mipmap.photo)
+                }, data = R.drawable.photo)
             CoilImage(modifier = Modifier
                 .size(70.dp)
                 .click {
                     takePhotoClick.invoke(imageCapture)
-                }, data = R.mipmap.photograph)
+                }, data = R.drawable.photograph)
             CoilImage(modifier = Modifier
                 .size(24.dp)
                 .click {
                     switchFacing.invoke()
-                }, data = R.mipmap.transform)
+                }, data = R.drawable.transform)
         }
     }
 }

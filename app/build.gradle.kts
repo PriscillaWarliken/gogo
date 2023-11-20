@@ -50,6 +50,7 @@ android {
         buildConfigField("String", "adUnit", "\"${prop.getProperty("adUnit")}\"")
         buildConfigField("String", "adRevenue", "\"${prop.getProperty("adRevenue")}\"")
         buildConfigField("String", "adSite", "\"${prop.getProperty("adSite")}\"")
+        buildConfigField("String", "adType", "\"${prop.getProperty("adType")}\"")
     }
 
     signingConfigs {

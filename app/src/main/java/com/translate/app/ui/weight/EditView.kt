@@ -95,7 +95,7 @@ fun TranslateEditView(
                         .background(color = Color(0x33000000), shape = RoundedCornerShape(12.dp))
                 ) {
                     Row(modifier = Modifier.align(Alignment.Center)) {
-                        CoilImage(modifier = Modifier.size(24.dp), data = R.mipmap.home_translate)
+                        CoilImage(modifier = Modifier.size(24.dp), data = R.drawable.home_translate)
                         Text(text = "Translate", fontSize = 18.sp, color = Color(0x996584C2))
                     }
                 }
@@ -115,7 +115,7 @@ fun TranslateEditView(
                                     )
                                 }
                             }
-                        }, data = R.mipmap.home_paste
+                        }, data = R.drawable.home_paste
                 )
             }
         }
@@ -125,7 +125,7 @@ fun TranslateEditView(
                 .size(36.dp, 29.dp)
                 .click {
                     textContent = TextFieldValue(text = "")
-                }, data = R.mipmap.home_eliminate)
+                }, data = R.drawable.home_eliminate)
 
             Box(
                 modifier = Modifier
@@ -139,7 +139,7 @@ fun TranslateEditView(
                     .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(12.dp))
             ) {
                 Row(modifier = Modifier.align(Alignment.Center)) {
-                    CoilImage(modifier = Modifier.size(24.dp), data = R.mipmap.home_translate2)
+                    CoilImage(modifier = Modifier.size(24.dp), data = R.drawable.home_translate2)
                     Text(text = "Translate", fontSize = 18.sp, color = Color.Black)
                 }
             }

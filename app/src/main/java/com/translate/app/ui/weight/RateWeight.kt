@@ -48,9 +48,9 @@ fun RateWeight(modifier:Modifier,block:(Int)->Unit={}) {
                         block.invoke(i)
                     },
                 data = if (selectedRateIndex < i) {
-                    R.mipmap.rate_2
+                    R.drawable.rate_2
                 } else {
-                    R.mipmap.rate_1
+                    R.drawable.rate_1
                 }
             )
         }

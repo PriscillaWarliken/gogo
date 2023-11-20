@@ -136,7 +136,7 @@ fun SearchEditView(
         ),
         leadingIcon = if (focusState.value.not()) {
             @Composable{
-                CoilImage(modifier = Modifier.size(20.dp), data = R.mipmap.search)
+                CoilImage(modifier = Modifier.size(20.dp), data = R.drawable.search)
             }
         }else{
             null

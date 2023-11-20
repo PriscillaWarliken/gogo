@@ -114,7 +114,7 @@ class MainActivity : BaseActivity(),NavAdCallback {
                                     return@click
                                 }
                                 showPopupWindowState = true
-                            }, data = R.mipmap.settings)
+                            }, data = R.drawable.settings)
                     }
 
                     Box(
@@ -177,7 +177,7 @@ class MainActivity : BaseActivity(),NavAdCallback {
                             .click {
                                 clickTag = ABLUM_TAG
                                 spacerAdCount()
-                            }, data = R.mipmap.home_album)
+                            }, data = R.drawable.home_album)
                         Text(text = "Album", fontSize = 18.sp,modifier = Modifier
                             .padding(bottom = 16.dp)
                             .align(Alignment.BottomCenter))
@@ -188,7 +188,7 @@ class MainActivity : BaseActivity(),NavAdCallback {
                             .click {
                                 clickTag = CAPTURE_TAG
                                 spacerAdCount()
-                            }, data = R.mipmap.home_camera
+                            }, data = R.drawable.home_camera
                     )
                         Text(text = "Camera", fontSize = 18.sp,modifier = Modifier
                             .padding(bottom = 16.dp)
@@ -224,7 +224,7 @@ class MainActivity : BaseActivity(),NavAdCallback {
                     CoilImage(
                         modifier = Modifier
                             .padding(end = 7.dp)
-                            .size(24.dp), data = R.mipmap.terms
+                            .size(24.dp), data = R.drawable.terms
                     )
                     Text(text = "Terms of Service", fontSize = 16.sp)
                 }
@@ -239,7 +239,7 @@ class MainActivity : BaseActivity(),NavAdCallback {
                     CoilImage(
                         modifier = Modifier
                             .padding(end = 7.dp)
-                            .size(24.dp), data = R.mipmap.privacy
+                            .size(24.dp), data = R.drawable.privacy
                     )
                     Text(text = "Privacy Policy", fontSize = 16.sp)
                 }
@@ -295,7 +295,7 @@ fun TopBar(changeLanguage:()->Unit = {}) {
             .size(24.dp)
             .click {
                 context.finish()
-            }, data = R.mipmap.universal_back)
+            }, data = R.drawable.universal_back)
 
         Box(
             modifier = Modifier
@@ -323,7 +323,7 @@ fun TopBar(changeLanguage:()->Unit = {}) {
                     modifier = Modifier
                         .padding(start = 2.dp)
                         .size(11.dp, 6.dp),
-                    data = R.mipmap.home_pulldown
+                    data = R.drawable.home_pulldown
                 )
             }
             CoilImage(
@@ -339,7 +339,7 @@ fun TopBar(changeLanguage:()->Unit = {}) {
                         }
                         changeLanguage.invoke()
                     },
-                data = R.mipmap.home_cut
+                data = R.drawable.home_cut
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -358,7 +358,7 @@ fun TopBar(changeLanguage:()->Unit = {}) {
                     modifier = Modifier
                         .padding(start = 2.dp)
                         .size(11.dp, 6.dp),
-                    data = R.mipmap.home_pulldown
+                    data = R.drawable.home_pulldown
                 )
             }
         }

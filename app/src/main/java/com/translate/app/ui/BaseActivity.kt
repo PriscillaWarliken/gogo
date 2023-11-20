@@ -57,7 +57,7 @@ open class BaseActivity : ComponentActivity(), IntAdCallback {
                 navigationBarContrastEnforced = false
             )
             Box(modifier = Modifier.fillMaxSize()){
-                CoilImage(modifier = Modifier.fillMaxSize(), data = R.mipmap.bg,contentScale = ContentScale.FillBounds)
+                CoilImage(modifier = Modifier.fillMaxSize(), data = R.drawable.bg,contentScale = ContentScale.FillBounds)
                 content()
             }
         })

@@ -38,7 +38,7 @@ fun RateDialog(dissBlock:()->Unit) {
                     .height(180.dp)
                     .clip(shape = RoundedCornerShape(20.dp))
             ){
-                CoilImage(modifier = Modifier.fillMaxSize(), data = R.mipmap.bg_dialog)
+                CoilImage(modifier = Modifier.fillMaxSize(), data = R.drawable.bg_dialog)
 
                 Column(modifier = Modifier
                     .padding(top = 32.dp)
@@ -74,7 +74,7 @@ fun RateDialog(dissBlock:()->Unit) {
                 }
                 .padding(top = 15.dp)
                 .size(36.dp),
-                data = R.mipmap.close)
+                data = R.drawable.close)
         }
     }
 }

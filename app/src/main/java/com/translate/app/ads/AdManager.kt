@@ -24,6 +24,7 @@ object AdManager {
     private var adUnit = BuildConfig.adUnit
     private var adRevenue = BuildConfig.adRevenue
     private var adSite = BuildConfig.adSite
+    private var adType = BuildConfig.adType
     private var adRequestEvent = BuildConfig.adRequestCode
     private var adTapEvent = BuildConfig.adTapCode
     private var adFillEvent = BuildConfig.adFillCode
@@ -69,6 +70,7 @@ object AdManager {
         event.addCallbackParameter(adUnit, adWrapper.id)
         event.addCallbackParameter(adRevenue,"admob")
         event.addCallbackParameter(adSite,place)
+        event.addCallbackParameter(adType,adWrapper.type)
         Adjust.trackEvent(event)
     }
 
@@ -77,6 +79,7 @@ object AdManager {
         event.addCallbackParameter(adUnit, adWrapper.id)
         event.addCallbackParameter(adRevenue,"admob")
         event.addCallbackParameter(adSite,place)
+        event.addCallbackParameter(adType,adWrapper.type)
         Adjust.trackEvent(event)
     }
 
@@ -85,6 +88,7 @@ object AdManager {
         event.addCallbackParameter(adUnit, adWrapper.id)
         event.addCallbackParameter(adRevenue,"admob")
         event.addCallbackParameter(adSite,place)
+        event.addCallbackParameter(adType,adWrapper.type)
         Adjust.trackEvent(event)
     }
 
@@ -166,7 +170,7 @@ object AdManager {
         adWrapper.id = adWrapper.innerAdList[index].ad_code
         adWrapper.type = adWrapper.innerAdList[index].advFormat
         adWrapper.weight = adWrapper.innerAdList[index].adv_scale
-
+        adWrapper.type = adWrapper.innerAdList[index].advFormat
         if (adWrapper.type == Const.AdConst.TYPE_NAV && navPermission.not()) {
             Log.d(TAG, "原生限制---->不请求 ")
             if (jumpTag.contains(Const.AdConst.AD_TEXT).not() && place == Const.AdConst.AD_TEXT) {

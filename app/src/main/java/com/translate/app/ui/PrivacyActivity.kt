@@ -56,7 +56,7 @@ class PrivacyActivity : BaseActivity() {
                         .align(Alignment.Start)
                         .padding(top = 47.dp, start = 42.dp)
                         .size(230.dp, 38.dp),
-                    data = R.mipmap.welcome
+                    data = R.drawable.welcome
                 )
                 Text(
                     text = stringResource(id = R.string.app_name),
@@ -69,7 +69,7 @@ class PrivacyActivity : BaseActivity() {
                     modifier = Modifier
                         .padding(top = 45.dp)
                         .size(308.dp, 318.dp),
-                    data = R.mipmap.inbetweening
+                    data = R.drawable.inbetweening
                 )
 
                 Text(

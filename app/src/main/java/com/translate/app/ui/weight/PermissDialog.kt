@@ -42,7 +42,7 @@ fun PermissDialog(dissmissBlock:()->Unit) {
                 .width(305.dp)
                 .height(260.dp)
         ){
-            CoilImage(modifier = Modifier.fillMaxSize(), data = R.mipmap.bg_dialog)
+            CoilImage(modifier = Modifier.fillMaxSize(), data = R.drawable.bg_dialog)
 
             Column(modifier = Modifier
                 .padding(top = 32.dp)

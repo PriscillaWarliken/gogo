@@ -120,14 +120,12 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
         //设置状态栏文字颜色
         setStatusBarTextColor(window, true)
 
-
         config = if (DeviceHelper.isMinSdk33) intent.getParcelableExtra(
             Constants.EXTRA_CONFIG, ImagePickerConfig::class.java
         )!! else intent.getParcelableExtra(Constants.EXTRA_CONFIG)!!
         config.initDefaultValues(this@ImagePickerActivity)
 
         // Setup status bar theme
-
         GlideHelper.setConfig(
             config.isImageTransitionEnabled,
             config.customDrawable!!.loadingImagePlaceholder,
@@ -207,11 +205,8 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
             }
         }
 
-//        binding.snackbar.config(config)
-
-        val initialFragment =
-            if (config.isFolderMode) FolderFragment.newInstance(config.folderGridCount)
-            else ImageFragment.newInstance(config.imageGridCount)
+        val initialFragment = if (config.isFolderMode) FolderFragment.newInstance(config.folderGridCount)
+        else ImageFragment.newInstance(config.imageGridCount)
 
         supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, initialFragment)
             .commit()

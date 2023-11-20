@@ -18,6 +18,7 @@ class AdWrapper(
     var innerAdList: List <InnerAd>,
 
     var adLoading: Boolean = false,
+    var adType:String
 ) {
     private lateinit var mAdInstance: Any
     lateinit var id: String
