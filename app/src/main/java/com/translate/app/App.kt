@@ -11,6 +11,11 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import androidx.core.view.WindowCompat
+import com.adjust.sdk.Adjust
+import com.adjust.sdk.AdjustConfig
+import com.adjust.sdk.AdjustEvent
+import com.android.installreferrer.api.InstallReferrerClient
+import com.android.installreferrer.api.InstallReferrerStateListener
 import com.google.android.gms.ads.AdActivity
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -51,10 +56,47 @@ class App : Application(),ActivityLifecycleCallbacks {
             launch { Repository.useCacheConfig() }
             launch { Repository.parseLanguageJson() }
         }
+        initAdjust()
     }
 
-    private var activityCount = 0
+    private fun initAdjust() {
+        val appToken = BuildConfig.adjust_token
+        val environment = if (BuildConfig.DEBUG) AdjustConfig.ENVIRONMENT_SANDBOX else AdjustConfig.ENVIRONMENT_PRODUCTION
+        val config = AdjustConfig(this, appToken, environment)
+        Adjust.onCreate(config)
+        if (Repository.sharedPreferences.getBoolean(Const.ADJUST_INSTALL, true)) {
+            InstallReferrerClient.newBuilder(context).build().apply {
+                startConnection(object : InstallReferrerStateListener {
+                    override fun onInstallReferrerSetupFinished(responseCode: Int) {
+                        when (responseCode) {
+                            InstallReferrerClient.InstallReferrerResponse.OK -> {
+                                try {
+                                    val event = AdjustEvent(BuildConfig.adjust_code)
+                                    val referrerUrl = this@apply.installReferrer.installReferrer
+                                    event.addCallbackParameter(
+                                        BuildConfig.adjust_referrerUrl,
+                                        referrerUrl
+                                    )
+                                    Adjust.trackEvent(event)
+                                    Repository.sharedPreferences.edit().putBoolean(Const.ADJUST_INSTALL, false).apply()
+                                } catch (_: Exception) { }
+                            }
+                            InstallReferrerClient.InstallReferrerResponse.PERMISSION_ERROR,
+                            InstallReferrerClient.InstallReferrerResponse.DEVELOPER_ERROR,
+                            InstallReferrerClient.InstallReferrerResponse.FEATURE_NOT_SUPPORTED,
+                            InstallReferrerClient.InstallReferrerResponse.SERVICE_UNAVAILABLE->{}
+                        }
+                        this@apply.endConnection()
+                    }
 
+                    override fun onInstallReferrerServiceDisconnected() {}
+                })
+            }
+        }
+    }
+
+
+    private var activityCount = 0
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
 

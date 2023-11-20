@@ -48,6 +48,7 @@ import com.nguyenhoanglam.imagepicker.model.IndicatorType
 import com.nguyenhoanglam.imagepicker.model.RootDirectory
 import com.nguyenhoanglam.imagepicker.ui.imagepicker.registerImagePicker
 import com.translate.app.App
+import com.translate.app.BuildConfig
 import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.ads.AdManager
@@ -214,7 +215,9 @@ class MainActivity : BaseActivity(),NavAdCallback {
                     modifier = Modifier
                         .height(60.dp)
                         .click {
-                            navActivity<WebActivity>()
+                            val intent = Intent(this@MainActivity, WebActivity::class.java)
+                            intent.putExtra("url", BuildConfig.user_url)
+                            startActivity(intent)
                         },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -228,7 +231,9 @@ class MainActivity : BaseActivity(),NavAdCallback {
                 Row(modifier = Modifier
                     .height(60.dp)
                     .click {
-                           navActivity<WebActivity>()
+                        val intent = Intent(this@MainActivity, WebActivity::class.java)
+                        intent.putExtra("url", BuildConfig.privacy_url)
+                        startActivity(intent)
                     }, verticalAlignment = Alignment.CenterVertically
                 ) {
                     CoilImage(

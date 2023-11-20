@@ -21,6 +21,7 @@ class WebActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val url = intent.getStringExtra("url") ?: BuildConfig.privacy_url
         setContent {
             Box(modifier = Modifier
                 .fillMaxSize()
@@ -34,7 +35,7 @@ class WebActivity : BaseActivity() {
                         )
                         settings.javaScriptEnabled = true
                         webViewClient = WebViewClient()
-                        loadUrl(BuildConfig.privacy_url)
+                        loadUrl(url)
                     }
                 }, modifier = Modifier)
 

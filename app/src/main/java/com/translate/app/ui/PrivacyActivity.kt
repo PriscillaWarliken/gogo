@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import com.google.firebase.analytics.logEvent
 import com.translate.app.App
+import com.translate.app.BuildConfig
 import com.translate.app.Const
 import com.translate.app.R
 import com.translate.app.repository.Repository
@@ -90,7 +91,9 @@ class PrivacyActivity : BaseActivity() {
                     modifier = Modifier
                         .padding(top = 40.dp)
                         .click {
-                            navActivity<WebActivity>()
+                            val intent = Intent(this@PrivacyActivity, WebActivity::class.java)
+                            intent.putExtra("url", BuildConfig.privacy_url)
+                            startActivity(intent)
                         },
                     textAlign = TextAlign.Center,
                 )

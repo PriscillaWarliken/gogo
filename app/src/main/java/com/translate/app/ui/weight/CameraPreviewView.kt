@@ -134,15 +134,8 @@ fun PreViewMainLayout(
                 }, data = R.mipmap.photo)
             CoilImage(modifier = Modifier
                 .size(70.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = { //点击事件
-                            takePhotoClick.invoke(imageCapture)
-                        },
-                        onLongPress = { //长按事件
-
-                        }
-                    )
+                .click {
+                    takePhotoClick.invoke(imageCapture)
                 }, data = R.mipmap.photograph)
             CoilImage(modifier = Modifier
                 .size(24.dp)

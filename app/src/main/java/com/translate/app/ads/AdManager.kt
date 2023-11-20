@@ -3,7 +3,10 @@ package com.translate.app.ads
 import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
+import com.adjust.sdk.Adjust
+import com.adjust.sdk.AdjustEvent
 import com.translate.app.App
+import com.translate.app.BuildConfig
 import com.translate.app.Const
 import com.translate.app.ads.base.AdWrapper
 import com.translate.app.ads.base.IntAd
@@ -17,6 +20,13 @@ import java.util.TimeZone
 import java.util.concurrent.ConcurrentLinkedQueue
 
 object AdManager {
+
+    private var adUnit = BuildConfig.adUnit
+    private var adRevenue = BuildConfig.adRevenue
+    private var adSite = BuildConfig.adSite
+    private var adRequestEvent = BuildConfig.adRequestCode
+    private var adTapEvent = BuildConfig.adTapCode
+    private var adFillEvent = BuildConfig.adFillCode
 
     private const val TAG = "AdLog"
     private lateinit var mAdConfigMap: MutableMap<String, AdWrapper>
@@ -48,6 +58,30 @@ object AdManager {
 
     fun setIntAdCallBack(l: IntAdCallback) {
         this.intAdCallBack = l
+    }
+
+    private fun requestEvent(adWrapper: AdWrapper, place: String) {
+        val event = AdjustEvent(adRequestEvent)
+        event.addCallbackParameter(adUnit, adWrapper.id)
+        event.addCallbackParameter(adRevenue,"admob")
+        event.addCallbackParameter(adSite,place)
+        Adjust.trackEvent(event)
+    }
+
+    private fun clickEvent(adWrapper: AdWrapper, place: String) {
+        val event = AdjustEvent(adTapEvent)
+        event.addCallbackParameter(adUnit, adWrapper.id)
+        event.addCallbackParameter(adRevenue,"admob")
+        event.addCallbackParameter(adSite,place)
+        Adjust.trackEvent(event)
+    }
+
+    private fun fillEvent(adWrapper: AdWrapper, place: String) {
+        val event = AdjustEvent(adFillEvent)
+        event.addCallbackParameter(adUnit, adWrapper.id)
+        event.addCallbackParameter(adRevenue,"admob")
+        event.addCallbackParameter(adSite,place)
+        Adjust.trackEvent(event)
     }
 
     fun initAdMapConfig(adMap:MutableMap<String, AdWrapper>, clickLimit:Int = 3) {
@@ -140,6 +174,9 @@ object AdManager {
 
         adWrapper.adLoading = true
         Log.d(TAG, "-------------------- 请求 $place 广告 id:${adWrapper.id} 权重:${adWrapper.weight} 类型:${adWrapper.type} index:${index}--------------------")
+
+        requestEvent(adWrapper,place)
+
         when (adWrapper.type) {
             Const.AdConst.TYPE_NAV -> {
                 loadNavAdInstance(index,place,adWrapper)
@@ -165,6 +202,8 @@ object AdManager {
         NavAd().apply {
             setAdCallBack(object :AdCallBack{
                 override fun onLoadSuccess(adInstance: Any) {
+                    fillEvent(adWrapper,place)
+
                     adWrapper.setAdInstance(adInstance)
                     smallAdPool.add(adWrapper)
                     Log.d(TAG,"$place 请求成功 小屏广告缓存池里数量:${smallAdPool.size}, 权重:${adWrapper.weight}, index:${index},hashCode:" + adInstance.hashCode())
@@ -206,6 +245,8 @@ object AdManager {
                 override fun onClose() {}
 
                 override fun onClick() {
+                    clickEvent(adWrapper,place)
+
                     nowClickCount++
                     Repository.sharedPreferences.edit {
                         putInt(Const.AdConst.CLICK_COUNT, nowClickCount)
@@ -226,6 +267,8 @@ object AdManager {
         IntAd().apply {
             setAdCallBack(object : AdCallBack {
                 override fun onLoadSuccess(adInstance: Any) {
+                    fillEvent(adWrapper,place)
+
                     adWrapper.setAdInstance(adInstance)
                     fullAdPool.add(adWrapper)
                     Log.d(TAG,"$place 请求成功 全屏广告缓存池里数量:${fullAdPool.size}, 权重:${adWrapper.weight}, index:${index},hashCode:" + adInstance.hashCode())
@@ -259,7 +302,9 @@ object AdManager {
                     intAdCallBack.onCloseIntAd()
                 }
 
-                override fun onClick() {}
+                override fun onClick() {
+                    clickEvent(adWrapper,place)
+                }
             })
         }.loadAd(adWrapper.id)
     }
@@ -268,6 +313,8 @@ object AdManager {
         OpenAd().apply {
             setAdCallBack(object :AdCallBack{
                 override fun onLoadSuccess(adInstance: Any) {
+                    fillEvent(adWrapper,place)
+
                     adWrapper.setAdInstance(adInstance)
                     fullAdPool.add(adWrapper)
                     Log.d(TAG,"$place 请求成功 全屏广告缓存池里数量:${fullAdPool.size}, 权重:${adWrapper.weight}, index:${index},hashCode:" + adInstance.hashCode())
@@ -302,6 +349,7 @@ object AdManager {
                 }
 
                 override fun onClick() {
+                    clickEvent(adWrapper,place)
                 }
             })
         }.loadAd(adWrapper.id)
@@ -397,7 +445,13 @@ object AdManager {
                     nativeAdCallMap[adLocation]?.getNavAdFromPool(it)
                     return
                 }
-
+                //本广告位请求中，缓存广告权重相同时情况
+                if (mAdConfigMap[adLocation]?.openBtn == true) {
+                    smallAdPool.first().let {
+                        smallAdPool.remove(it)
+                        nativeAdCallMap[adLocation]?.getNavAdFromPool(it)
+                    }
+                }
             }
         } catch (e: Exception) {
             Log.d(TAG, "获取广告:" + e.message + " ,广告位:" + adLocation)

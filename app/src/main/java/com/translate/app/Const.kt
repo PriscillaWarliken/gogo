@@ -39,6 +39,7 @@ object Const {
     const val HOME_EXPORT = "HOME_EXPORT"
     const val RESULT_COUNT = "RESULT_COUNT"
     const val SHOW_RATE = "SHOW_RATE"
+    const val ADJUST_INSTALL = "ADJUST_INSTALL"
 
     val pName: String get() = App.context.packageName
 
