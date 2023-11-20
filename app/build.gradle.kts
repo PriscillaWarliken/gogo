@@ -83,6 +83,10 @@ android {
             configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
                 mappingFileUploadEnabled = false
             }
+            ndk{
+                abiFilters.add("arm64-v8a")
+                abiFilters.add("armeabi-v7a")
+            }
         }
     }
     compileOptions {

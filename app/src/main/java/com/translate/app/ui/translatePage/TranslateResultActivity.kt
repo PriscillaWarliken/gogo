@@ -92,7 +92,6 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
             }
         }
         pointLog("Textresults_And","文本翻译结果页曝光")
-        LanguageActivity.setLanguageChangeListener(this)
         TranslateViewModel.reusltLiveData.observe(this){
             showAnimState = false
         }
@@ -116,18 +115,20 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
                     execApi()
                 }
 
-                if (adWrapper.value == null) {
-                    SmallNavView(
-                        modifier = Modifier
-                            .padding(top = 20.dp)
-                            .padding(horizontal = 20.dp)
-                    )
-                }else{
-                    NativeAdsView(
-                        isBig = false, mAdInstance = adWrapper.value!!, modifier = Modifier
-                            .padding(top = 20.dp)
-                            .padding(horizontal = 20.dp)
-                    )
+                Box(modifier = Modifier.fillMaxWidth().height(92.dp)){
+                    if (adWrapper.value == null) {
+                        SmallNavView(
+                            modifier = Modifier
+                                .padding(top = 20.dp)
+                                .padding(horizontal = 20.dp)
+                        )
+                    }else{
+                        NativeAdsView(
+                            isBig = false, mAdInstance = adWrapper.value!!, modifier = Modifier
+                                .padding(top = 20.dp)
+                                .padding(horizontal = 20.dp)
+                        )
+                    }
                 }
 
 
@@ -256,6 +257,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
             AdManager.setNativeCallBack(this, Const.AdConst.AD_TEXT)
             AdManager.getAdObjFromPool(Const.AdConst.AD_TEXT)
         }
+        LanguageActivity.setLanguageChangeListener(this)
     }
 
     override fun getNavAdFromPool(adWrapper: AdWrapper) {
@@ -290,10 +292,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
 
     override fun onDestroy() {
         super.onDestroy()
-        LanguageActivity.setLanguageChangeListener(null)
     }
-
-
 
     private fun showIntAd() {
         AdManager.setIntAdCallBack(this)
@@ -302,6 +301,7 @@ class TranslateResultActivity : BaseActivity(),LanguageChangeListener, NavAdCall
 
     override fun getIntAdFromPool(adWrapper: AdWrapper?) {
         adWrapper?.let { it.showAdInstance(this) }
+        AdManager.clearIntAdCallBack()
     }
 
     override fun onCloseIntAd() {}

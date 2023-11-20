@@ -160,7 +160,6 @@ object Repository {
                 }
                 AdManager.initAdMapConfig(map, configBean.resp.noNO)
             }
-
         }catch (e:Exception){
             e.printStackTrace()
         }

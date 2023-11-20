@@ -108,7 +108,7 @@ class ImagePickerActivity : AppCompatActivity(), OnFolderClickListener, OnImageS
             return
         }
         pointLog("Album_And","相册页曝光")
-
+        LanguageActivity.setLanguageChangeListener(null)
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         var systemUiVisibility = window.decorView.systemUiVisibility

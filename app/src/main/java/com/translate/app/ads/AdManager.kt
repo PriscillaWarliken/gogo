@@ -32,7 +32,7 @@ object AdManager {
     private lateinit var mAdConfigMap: MutableMap<String, AdWrapper>
 
     private var nativeAdCallMap = mutableMapOf<String, NavAdCallback>()
-    private lateinit var intAdCallBack: IntAdCallback
+    private var intAdCallBack: IntAdCallback ?= null
 
     val smallAdPool = ConcurrentLinkedQueue<AdWrapper>()
     val fullAdPool = ConcurrentLinkedQueue<AdWrapper>()
@@ -58,6 +58,10 @@ object AdManager {
 
     fun setIntAdCallBack(l: IntAdCallback) {
         this.intAdCallBack = l
+    }
+
+    fun clearIntAdCallBack() {
+        intAdCallBack = null
     }
 
     private fun requestEvent(adWrapper: AdWrapper, place: String) {
@@ -299,7 +303,7 @@ object AdManager {
                 }
 
                 override fun onClose() {
-                    intAdCallBack.onCloseIntAd()
+                    intAdCallBack?.onCloseIntAd()
                 }
 
                 override fun onClick() {
@@ -345,7 +349,7 @@ object AdManager {
                 }
 
                 override fun onClose() {
-                    intAdCallBack.onCloseIntAd()
+                    intAdCallBack?.onCloseIntAd()
                 }
 
                 override fun onClick() {
@@ -359,14 +363,14 @@ object AdManager {
         try {
             if ((!::mAdConfigMap.isInitialized)) {
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
-                    intAdCallBack.getIntAdFromPool(null)
+                    intAdCallBack?.getIntAdFromPool(null)
                 }
                 return
             }
 
             if (mAdConfigMap[adLocation]?.openBtn == false) {
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
-                    intAdCallBack.getIntAdFromPool(null)
+                    intAdCallBack?.getIntAdFromPool(null)
                 }
                 return
             }
@@ -374,7 +378,7 @@ object AdManager {
             if (App.isBackground) {
                 Log.d(TAG, "禁止在后台获取广告 ${adLocation}")
                 if (adLocation == Const.AdConst.AD_START || adLocation == Const.AdConst.AD_INSERT) {
-                    intAdCallBack.getIntAdFromPool(null)
+                    intAdCallBack?.getIntAdFromPool(null)
                 }
                 return
             }
@@ -399,7 +403,7 @@ object AdManager {
             if (!isSmallAdConst) {
                 val sortList = fullAdPool.sortedByDescending { it.weight }
                 if (sortList.isEmpty()) {
-                    intAdCallBack.getIntAdFromPool(null)
+                    intAdCallBack?.getIntAdFromPool(null)
                     return
                 }
                 val lowAdWeight = sortList.last().weight
@@ -409,13 +413,13 @@ object AdManager {
                     }
 
                     if (sortList.size == 1) {
-                        intAdCallBack.getIntAdFromPool(it)
+                        intAdCallBack?.getIntAdFromPool(it)
                         fullAdPool.remove(it)
                         return
                     }
 
                     if (it.weight > lowAdWeight) {
-                        intAdCallBack.getIntAdFromPool(it)
+                        intAdCallBack?.getIntAdFromPool(it)
                         fullAdPool.remove(it)
                         return
                     }
@@ -423,11 +427,11 @@ object AdManager {
 
                 val adWrapper: AdWrapper? = fullAdPool.find { it.place == adLocation }
                 adWrapper?.let {
-                    intAdCallBack.getIntAdFromPool(it)
+                    intAdCallBack?.getIntAdFromPool(it)
                     fullAdPool.remove(it)
                     return
                 }
-                intAdCallBack.getIntAdFromPool(null)
+                intAdCallBack?.getIntAdFromPool(null)
             } else {
                 val sortList = smallAdPool.sortedByDescending { it.weight }
                 val lowAdWeight = sortList.last().weight

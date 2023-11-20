@@ -61,6 +61,7 @@ class CaptureActivity : BaseActivity(), NavAdCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LanguageActivity.setLanguageChangeListener(null)
         pointLog("Camera_And","拍照页曝光")
         setContent {
             val lensFacing = remember {
